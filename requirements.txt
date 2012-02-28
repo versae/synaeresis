@@ -1,0 +1,12 @@
+Django==1.3.1
+Fuzzy==1.0
+Pillow==1.7.6
+South==0.7.3
+django-grappelli==2.3.7
+django-guardian==1.0.4.dev #  -e git+git://github.com/lukaszb/django-guardian.git
+-e git+git://github.com/versae/olwidget.git  # django-olwidget==0.49
+ipdb==0.6.1
+ipython==0.12
+jellyfish==0.2.0
+pysqlite==2.6.3 --no-install  # See https://docs.djangoproject.com/en/dev/ref/contrib/gis/install/#pysqlite2
+wsgiref==0.1.2
