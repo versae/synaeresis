@@ -54,6 +54,13 @@ class Speaker(models.Model):
     user = models.ForeignKey(User, verbose_name=_("user"),
                              related_name="speakers")
 
+    def __unicode__(self):
+        return u"%s" % self.code
+
+    @staticmethod
+    def autocomplete_search_fields():
+        return ("id__iexact", "code__icontains")
+
 
 class Language(models.Model):
     LANGUAGE_TYPES = (
@@ -142,7 +149,8 @@ class Production(models.Model):
                                  verbose_name=_("location"),
                                  related_name="productions",
                                  help_text=_("If not provided, Speaker "
-                                             "location will be used."))
+                                             "location will be used."),
+                                 null=True, blank=True)
     media = models.ForeignKey(MediaReference,
                               related_name="productions",
                               verbose_name=_("media"), null=True, blank=True)
@@ -516,6 +524,11 @@ class Production(models.Model):
 
     def __unicode__(self):
         return u"%s (%s)" % (self.word, self.category)
+
+    def save(self, *args, **kwargs):
+        if not self.location:
+            self.location = self.speaker.location
+        super(Production, self).save(*args, **kwargs)
 
     def get_features(self):
         features = {}

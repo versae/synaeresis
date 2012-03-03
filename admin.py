@@ -30,7 +30,7 @@ def setup_admin():
     admin_site.register(MediaReference, admin.ModelAdmin)
 
     admin_site.register(Study, StudyAdmin)
-    admin_site.register(Language, LanguageAdmin)
+#    admin_site.register(Language, LanguageAdmin)
     admin_site.register(Speaker, SpeakerAdmin)
     admin_site.register(Production, ProductionAdmin)
 
