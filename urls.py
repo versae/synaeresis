@@ -14,7 +14,13 @@ urlpatterns = patterns('',
     url(r'^', include('base.urls')),
 
     # studies
-    url(r'^studies/', include('studies.urls')),
+    # url(r'^studies/', include('studies.urls')),
+
+    # map
+    url(r'^map/', "studies.views.mapper", name="map"),
+
+    # grif
+    url(r'^grid/', "studies.views.grid", name="grid"),
 
     # i18n
     url(r'^i18n/', include('django.conf.urls.i18n')),

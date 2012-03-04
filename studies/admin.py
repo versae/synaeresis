@@ -10,6 +10,7 @@ from studies.models import Production, Language
 class BaseAdmin(GuardedModelAdmin):
     user_can_access_owned_objects_only = True
     exclude = ('user', )
+    save_on_top = True
 
     def save_model(self, request, obj, form, change):
         obj.user = request.user
@@ -37,6 +38,7 @@ class SpeakerAdmin(BaseAdmin):
         'fk': ['location'],
         'm2m': ['studies'],
     }
+    save_on_top = True
 
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
@@ -56,28 +58,31 @@ class ProductionAdmin(GuardedModelAdmin):
     exclude = ('user', 'frequency')
     search_fields = ('word', 'lemma', 'user__username',
                      'definition')
-    list_display = ('word', 'lemma', 'category', 'features',
-                    'frequency', 'user', 'date')
+    list_display = ('word', 'language',
+                    'ipa_transcription', 'rfe_transcription',
+                    'metaphone_encoding', 'soundex_encoding',
+                    'speaker', 'location',
+                    'lemma', 'category', 'features',
+                    'date')
     lexical_fields = set()
     for categories in Production.CATEGORY_FIELDS.values():
         for value in categories:
             lexical_fields.add(value)
     lexical_fields = list(lexical_fields)
-    raw_id_fields = ("speaker", "location")
+    raw_id_fields = ("speaker", "location", "media")
     autocomplete_lookup_fields = {
-        'fk': ['speaker', "location"],
+        'fk': ['speaker', "location", "media"],
     }
     fieldsets = (
         (None, {
-            'fields': ('word', )
+            'fields': ('word', 'language')
         }),
         ('Transcriptions', {
-            'fields': ('ipa_transcription', 'rfe_transcription', )
-#                       'defsfe_transcription', 'sala_transcription',
-#                       'worldbet_transcription', 'via_transcription')
+            'fields': ('ipa_transcription', 'rfe_transcription',
+                       'approximate_word')
         }),
         ('Source', {
-            'fields': ('speaker', 'location', 'lemma', )
+            'fields': ('speaker', 'location', 'media', )
 #                       'nysiis_encoding',
 #                       'codex_encoding')
         }),
@@ -89,10 +94,11 @@ class ProductionAdmin(GuardedModelAdmin):
         }),
         ('Grammar', {
             'classes': ('collapse',),
-            'fields': ["category"] + lexical_fields,
+            'fields': ["lemma", "category"] + lexical_fields,
         }),
     )
-    list_filter = ('user', 'date', 'category')
+    list_filter = ('date', 'category', 'ipa_transcription', 'rfe_transcription',
+                   'metaphone_encoding', 'soundex_encoding', 'language')
     date_hierarchy = 'date'
     # list_editable = ('lemma', 'category', 'gender', 'number', 'person')
     save_as = True
@@ -100,3 +106,7 @@ class ProductionAdmin(GuardedModelAdmin):
     def features(self, obj, *args, **kwargs):
         return obj.get_features_display()
     features.allow_tags = True
+
+    def save_model(self, request, obj, form, change):
+        obj.user = request.user
+        obj.save()

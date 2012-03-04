@@ -47,10 +47,7 @@ class GeospatialReference(models.Model):
     objects = models.GeoManager()
 
     def __unicode__(self):
-        if self.address:
-            return u"%s (%s)" % (self.title, self.address)
-        else:
-            return u"%s" % self.title
+        return u"%s" % self.title
 
     def save(self, *args, **kwargs):
         if (self.geometry and self.point

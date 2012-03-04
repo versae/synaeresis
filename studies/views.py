@@ -7,21 +7,34 @@ from django.db import connection, DatabaseError
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 
-from studies.forms import SearchForm, SearchOptionsForm, LexicalEntryForm
+from studies.forms import SearchForm, SearchOptionsForm, ProductionForm
 from studies.models import Production
+
+
+def mapper(request):
+    return render_to_response('map.html',
+                              {},
+                              context_instance=RequestContext(request))
+
+
+def grid(request):
+    return render_to_response('grid.html',
+                              {},
+                              context_instance=RequestContext(request))
+
 
 def search(request):
     data = request.GET.copy()
     search_form = SearchForm(label_suffix="", data=data)
     search_options_form = SearchOptionsForm(data=data)
-    entry_form = LexicalEntryForm()
+    entry_form = ProductionForm()
     q = None
     entries = []
     query_time = 0.0
     start_list = 1
     regexp_error = False
     if data:
-        entry_form = LexicalEntryForm(data=data)
+        entry_form = ProductionForm(data=data)
         if (search_form.is_valid() and search_options_form.is_valid()
             and entry_form.is_valid()):
             q = search_form.cleaned_data["q"]
@@ -33,7 +46,7 @@ def search(request):
                     to_search = "lemma"
                 key = "%s__%s" % (to_search, options.get("match") or "iexact")
                 params[key] = q
-                entry_list = LexicalEntry.objects.filter(**params)
+                entry_list = Production.objects.filter(**params)
                 # Grouping by not documented API
                 # entry_list.query.group_by = ['lemma']
                 paginator = Paginator(entry_list, 15)
@@ -48,7 +61,7 @@ def search(request):
                 except (EmptyPage, InvalidPage):
                     entries = paginator.page(paginator.num_pages)
                 except DatabaseError:
-                    entry_list = LexicalEntry.objects.none()
+                    entry_list = Production.objects.none()
                     paginator = Paginator(entry_list, 15)
                     entries = paginator.page(1)
                     regexp_error = True

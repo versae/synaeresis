@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+import fuzzy
+
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 from base.models import GeospatialReference, MediaReference
-
+from studies.utils import metaphone, soundex, transcript
 
 
 class Study(models.Model):
@@ -16,6 +18,11 @@ class Study(models.Model):
     description = models.TextField(_(u'Ddescription'))
     user = models.ForeignKey(User, verbose_name=_("user"),
                              related_name="studies")
+
+    class Meta:
+        ordering = ["title"]
+        verbose_name = _("Study")
+        verbose_name_plural = _("Studies")
 
     def __unicode__(self):
         return u"%s" % self.title
@@ -53,6 +60,9 @@ class Speaker(models.Model):
                                  verbose_name=_("location"))
     user = models.ForeignKey(User, verbose_name=_("user"),
                              related_name="speakers")
+
+    class Meta:
+        ordering = ["code"]
 
     def __unicode__(self):
         return u"%s" % self.code
@@ -121,6 +131,12 @@ class Language(models.Model):
     user = models.ForeignKey(User, verbose_name=_("user"),
                              related_name="languages")
 
+    class Meta:
+        ordering = ["type"]
+
+    def __unicode__(self):
+        return u"%s: %s" % (self.sepaker.code, self.type)
+
 
 class Production(models.Model):
     user = models.ForeignKey(User, verbose_name=_("user"),
@@ -128,8 +144,12 @@ class Production(models.Model):
     speaker = models.ForeignKey(Speaker, verbose_name=_("Speaker"),
                                 related_name="productions")
     word = models.CharField(_("Word"), max_length=100)
-    approximate_word = models.CharField(_("Aproximate Word"), max_length=100,
-                                        null=True, blank=True)
+    approximate_word = models.CharField(_("Aproximation"), max_length=100,
+                                        null=True, blank=True,
+                                        help_text=_("If IPA or RFE are not "
+                                                    "provided, this will be "
+                                                    "used to generate them "
+                                                    "aproximately."))
     lemma = models.CharField(_("Lemma"), max_length=100, null=True, blank=True)
     language = models.CharField(_("Language"), max_length=8, blank=True,
                                choices=settings.LANGUAGES, null=True,
@@ -223,7 +243,8 @@ class Production(models.Model):
         (CATEGORY_VERB, _("Verb")),
     )
     category = models.CharField(_("Category"), max_length=10,
-                                choices=CATEGORY_CHOICES)
+                                choices=CATEGORY_CHOICES,
+                                null=True, blank=True)
     # Common properties
     GENDER_COED = "coed"
     GENDER_FEMENINE = "fem"
@@ -518,35 +539,54 @@ class Production(models.Model):
     notes = models.TextField(_("Notes"), null=True, blank=True)
 
     class Meta:
-        ordering = ["lemma", "word", "frequency", "date"]
-        verbose_name = _("Entry")
-        verbose_name_plural = _("Entries")
+        ordering = ["word", "language", "date"]
+        verbose_name = _("Production")
+        verbose_name_plural = _("Productions")
 
     def __unicode__(self):
-        return u"%s (%s)" % (self.word, self.category)
+        return u"%s (%s)" % (self.word,
+                             self.rfe_transcription or self.ipa_transcription)
 
     def save(self, *args, **kwargs):
+        self.word = self.word.strip().strip("\n").strip("\t")
         if not self.location:
             self.location = self.speaker.location
+        language = self.language[:2]
+        if not self.soundex_encoding:
+            self.soundex_encoding = soundex(self.word, language=language)
+        if not self.metaphone_encoding:
+            self.metaphone_encoding = metaphone(self.word, language=language)
+        if not self.ipa_transcription:
+            self.ipa_transcription = transcript(self.approximate_word \
+                                                or self.word,
+                                                language=language,
+                                                alphabet="ipa")
+        if not self.rfe_transcription:
+            self.rfe_transcription = transcript(self.approximate_word \
+                                                or self.word,
+                                                language=language,
+                                                alphabet="rfe")
         super(Production, self).save(*args, **kwargs)
 
     def get_features(self):
         features = {}
-        for feature in self.CATEGORY_FIELDS[self.category]:
-            features[feature] = getattr(self, feature, None)
+        if self.category:
+            for feature in self.CATEGORY_FIELDS[self.category]:
+                features[feature] = getattr(self, feature, None)
         return features
 
     def get_features_display(self):
         features = []
-        for feature in self.CATEGORY_FIELDS[self.category]:
-            feature_value = getattr(self, feature, None)
-            feature_display =  self._meta.get_field(feature).verbose_name
-            if feature_value:
-                feature_value_display = getattr(self, "get_%s_display"
-                                                        % feature)()
-                feature = u"%s: <strong style='color: #666'>%s</strong>" \
-                          % (feature_display, feature_value_display)
-            else:
-                feature = u"%s: (<em>None</em>)" % (feature_display)
-            features.append(feature)
+        if self.category:
+            for feature in self.CATEGORY_FIELDS[self.category]:
+                feature_value = getattr(self, feature, None)
+                feature_display =  self._meta.get_field(feature).verbose_name
+                if feature_value:
+                    feature_value_display = getattr(self, "get_%s_display"
+                                                            % feature)()
+                    feature = u"%s: <strong style='color: #666'>%s</strong>" \
+                              % (feature_display, feature_value_display)
+                else:
+                    feature = u"%s: (<em>None</em>)" % (feature_display)
+                features.append(feature)
         return u", ".join(features)

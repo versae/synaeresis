@@ -4,6 +4,6 @@ from django.conf.urls.defaults import *
 urlpatterns = patterns('studies.views',
 
     # index
-    url(r'^$', 'search', name="search"),
+    url(r'^$', 'map', name="mapper"),
 
 )

@@ -187,6 +187,9 @@ LOGGING = {
 GOOGLE_MAPS_API_KEY = "AIzaSyDqScj9T3cFRbNKS8Ehl4CwMQC8RmlKWo8"
 GOOGLE_API_KEY = GOOGLE_MAPS_API_KEY
 
+# You can download perkins from http://ssadowsky.hostei.com/perkins-es.html
+PERKINS_BIN = path.join(PROJECT_ROOT, 'perkins.bin')
+
 try:
     from local_settings import *
 except:
