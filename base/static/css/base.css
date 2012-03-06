@@ -8,13 +8,21 @@ font-family: 'PT Serif', serif;
 font-family: 'IM Fell English', serif;
 */
 
-body {
-    padding-top: 60px;
-    font-family: 'Georgia', serif;
-    font-size: 1em;
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: none;
 }
 
-h1,h2,h3,h4,h5,h5,h6,h7,.topbar {
+body {
+/*    padding-top: 60px;*/
+    font-family: 'Georgia', serif;
+    font-size: 1em;
+    margin: 0;
+    padding: 0;
+}
+
+h1,h2,h3,h4,h5,h5,h6,h7,.container-fluid {
     font-family: 'IM Fell DW Pica SC', serif;
 }
 
@@ -41,9 +49,13 @@ input[type="text"]:focus {
 
 input[type="text"] {
     font-family: 'IM Fell DW Pica', serif;
+/*    font-size: 1.25em;*/
+/*    height: 30px;*/
+/*    width: 100%;*/
     font-size: 1.25em;
-    height: 30px;
+    height: 15px;
     width: 100%;
+    margin-top: 8px;
 }
 
 input#search-submit {
@@ -116,4 +128,37 @@ label {
 
 .pagination a:hover, .pagination .active a {
     background-color: rgba(0, 0, 0, 0.05);
+}
 
+.well {
+    float: left;
+    position: absolute;
+    top: 38px;
+    width: 300px;
+}
+
+footer {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    width: 100%;
+    text-align: center;
+}
+
+footer p {
+    margin: 0 0 0 0;
+}
+
+.row-fluid {
+    padding-top: 60px;
+}
+
+#mapContainer {
+    position: relative;
+    margin: 0;
+}
+
+#mapContainer, #map {
+    height: 100%;
+    width: 100%;
+}
