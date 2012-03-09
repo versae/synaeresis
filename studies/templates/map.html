@@ -13,9 +13,20 @@ onload="initialize()"
 
 {% block navbar %}
 <li>
-    <input type="text" />
+<form id="searchForm">
+<span class="search-options">
+{% for field in search_options_form %}
+        <h3 class="inline">{{ field.label }}</h3>
+        {{ field.errors }}
+        {{ field }}
+{% endfor %}
+<input type="submit" title="{% trans "Search" %}" id="search-submit" value="">
+</span>
+<span class="main-search">
+{{ search_form.as_p }}
+</span>
+</form>
 </li>
-{{ block.super }}
 {% endblock %}
 
 
@@ -27,10 +38,7 @@ onload="initialize()"
 {% block container %}
 <div id="map" ></div>
 <div class="well">
-  <p>{% trans "Search" %}:</p>
-  <p>{% trans "Search" %}:</p>
-  <p>{% trans "Search" %}:</p>
-  <p>{% trans "Search" %}:</p>
+  
 </div>
 
 {% endblock %}

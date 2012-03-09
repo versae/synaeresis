@@ -35,7 +35,7 @@ h1,h2,h3,h4,h5,h5,h6,h7,.container-fluid {
     font-size: 1.25em;
 }
 
-input[type="text"] {
+input[type="text"],select {
     font-family: 'IM Fell DW Pica', serif;
     font-size: 1.25em;
     height: 30px;
@@ -53,7 +53,7 @@ input[type="text"] {
 /*    height: 30px;*/
 /*    width: 100%;*/
     font-size: 1.25em;
-    height: 15px;
+    height: 16px;
     width: 100%;
     margin-top: 8px;
 }
@@ -64,7 +64,7 @@ input#search-submit {
     background: white url('../img/magnifying-glass.png');
     width: 24px;
     height: 24px;
-    margin: 3px;
+    margin: none;
     box-shadow: none;
 }
 
@@ -72,19 +72,26 @@ input#search-submit {
     padding: 25px;
 }
 
-.hero-unit .main-search label {
+.main-search label {
     display: none;
 }
 
-.hero-unit .search-options {
+.main-search p {
+    width: 870px;
+    height: 20px;
+}
+
+.search-options {
     float: right;
     position: absolute;
     padding: 4px 30px 4px 4px;
     right: 0px;
     margin-right: 10px;
+    left: 300px;
+    width: 580px;
 }
 
-.hero-unit .search-options h3 {
+.search-options h3 {
     margin-left: 10px;
 }
 
@@ -98,8 +105,13 @@ dd {
 }
 
 select {
-    width: 180px;
+    font-size: 1em;
+    width: 205px;
     margin-bottom: 15px;
+    height: 28px;
+    background: none;
+    border: none;
+    padding-top: 7px;
 }
 
 ul {
@@ -134,7 +146,9 @@ label {
     float: left;
     position: absolute;
     top: 38px;
-    width: 300px;
+    height: 400px;
+    display: none;
+    overflow: auto;
 }
 
 footer {

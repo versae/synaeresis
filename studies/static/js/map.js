@@ -25,7 +25,7 @@ function initialize() {
     var map;
     var oldDirections = [];
     var currentDirections = null;
-    var myOptions = {
+    var mapOptions = {
       zoom: 12,
       center: new google.maps.LatLng(-28.643387, 153.612224),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -52,7 +52,41 @@ function initialize() {
           position: google.maps.ControlPosition.LEFT_TOP
       }
     }
-    map = new google.maps.Map(document.getElementById("map"), myOptions);
+    map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+    var form = $("#searchForm");
+    var resultsCount = 1;
+    form.submit(function (e) {
+        var self = $(this);
+        var values = decodeURIComponent(self.serialize());
+        var data = {
+            q: $("#id_q").val().trim(),
+            match: $("#id_match").val().trim(),
+            where: $("#id_where").val().trim(),
+        };
+        if (data.q != "") {
+            $(".well").show();
+            var p = $("<P>");
+            var pId = "results-"+ resultsCount;
+            data["id"] = pId;
+            p.attr("id", pId)
+            resultsCount += 1;
+            $.ajax({
+                url: ".",
+                dataType: 'json',
+                data: data,
+                success: function(result) {
+                    console.log(result);
+                },
+                error: function(result) {
+                    console.log(result);
+                }
+            });
+            p.text(pId +":"+ values);
+            $(".well").prepend(p)
+        }
+        return false;
+    });
 }
 
 
