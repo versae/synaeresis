@@ -1,0 +1,41 @@
+#alphabet { display: none; }
+#keyboard { display: block; }
+#phonic { display: none; }
+#phonic2 { display: none; }
+#shape { display: none; }
+#fontgrid { display: none; }
+#shapebucket img { display:none; }
+#controls { display: none; }
+#content { float: none; }
+#chardata span { border: 0; padding: 10px 0; }
+#viewmenu {display: inline-block; position: static; margin: 0;  width: 800px}
+#keyboards {display: none;}
+#kbd {border:0, margin:0}
+
+#tables th, #tables td {border:0}
+#alphabet td, #alphabet th {padding: 0 5px}
+#tones td, #tones th {padding: 3px 5px}
+#bttns button { color: white; margin: 5px 0;}
+#bttns {display: none;}
+#viewmenu button {color: black; width: 90px; margin-bottom: 5px; background-color:#DDD; border-radius: 10px; -moz-border-radius: 10px; -webkit-border-radius: 10px; font-family: 'IM Fell DW Pica SC', serif; font-size: 14px;}
+
+
+#fontgrid { font-size: 24px; width: 800px; display: none; }
+#fontgrid table {height: 600px;}
+#fontgrid td {height: 12%;width: 8%; cursor: pointer; }
+#fontgrid span {line-height: 26px; padding-right: 5px; font-size: 22px}
+.key { 	height: 35px; width: 60px; background-color: white;}
+
+#consonants { border: 2px dotted #005a9c; background-color: white; padding: 6px 0;}
+#tones { border: 2px dotted #005a9c; background-color: white; padding: 6px 0;}
+#consonants td {  padding: 0;  white-space: nowrap; }
+#vowels { border: 2px dotted #005a9c; background: url(vowelgrid.gif) top left no-repeat; white-space: nowrap; }
+#vowels td { padding: 0px; margin: 0; border: 0; text-align: center; vertical-align: top; }
+#vowels img { padding: 0px; margin: 0; }
+#vowels div { height: 34px; }
+#bottomphones td { padding: 0; margin: 0; }
+#bottomphones  {  border: 2px dotted #005a9c; background-color: white; margin-bottom: 10px; padding: 6px; margin-left: 10px;}
+#other2 img { padding: 0; margin: 0; }
+
+#output { font-family: "Doulos SIL", sans-serif; font-size: 30px; border:0; height: 40px;}
+#fontgrid { font-family: "Doulos SIL", sans-serif; font-size: 35px; }

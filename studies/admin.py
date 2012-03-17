@@ -4,7 +4,7 @@ from django.contrib import admin
 from guardian.admin import GuardedModelAdmin
 
 from studies.models import Production
-
+from studies.forms import ProductionAdminForm
 
 
 class BaseAdmin(GuardedModelAdmin):
@@ -35,7 +35,16 @@ class SpeakerAdmin(BaseAdmin):
 class ProductionAdmin(admin.ModelAdmin):
 
     class Media:
-        js = ("admin/js/categories.js", )
+        js = ("admin/js/categories.js", 
+              "js/functions11.js",
+              "js/ipa.js",
+              "js/n11n.js",
+              "js/n11ndata-lite.js")
+        css = {
+                'all': ('css/style11.css','css/ipa.css'),
+              }
+    form = ProductionAdminForm
+
 
     readonly_fields = ('frequency', )
     exclude = ('user', 'frequency')
@@ -44,6 +53,7 @@ class ProductionAdmin(admin.ModelAdmin):
     list_display = ('word', 'lemma', 'category', 'features',
                     'frequency', 'user', 'date')
     lexical_fields = set()
+
     for categories in Production.CATEGORY_FIELDS.values():
         for value in categories:
             lexical_fields.add(value)

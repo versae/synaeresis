@@ -10,6 +10,10 @@ from django.template import RequestContext
 from studies.forms import SearchForm, SearchOptionsForm, LexicalEntryForm
 from studies.models import Production
 
+def ipa_keyboard(request):
+    return render_to_response('ipa.html', 
+            context_instance=RequestContext(request))
+
 def search(request):
     data = request.GET.copy()
     search_form = SearchForm(label_suffix="", data=data)

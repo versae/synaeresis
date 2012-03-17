@@ -2,13 +2,18 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from studies.models import Production as LexicalEntry
+from studies.models import Production as LexicalEntry,Production
+
+class ProductionAdminForm(forms.ModelForm):
+    ipa_transcription = forms.CharField(label='IPA', 
+        widget=forms.Textarea(attrs={'id':'output'}))
+    class Meta:
+        model = Production
 
 
 class SearchForm(forms.Form):
-    q = forms.CharField(label=_("Word to search"), required=False,
-                        max_length=100)
-
+    q = forms.CharField(label=_("Word to search"), required=False, max_length=100, 
+        widget=forms.TextInput(attrs={'id':'output'}))
     def q_clean(self):
         q = super(SearchForm, self).q_clean()
         return q.strip()
@@ -58,7 +63,8 @@ class LexicalEntryForm(forms.ModelForm):
         for field_name, field_value in self.fields.items():
             if field_name != "category":
                 # field_value.choices[0] = ("", "None")
-                field_value.choices = field_value.choices[1:]
+                # field_value.choices = field_value.choices[1:]
+                pass
             else:
                 field_value.required = False
 

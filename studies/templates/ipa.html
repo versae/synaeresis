@@ -1,0 +1,377 @@
+{% load static %}
+{% get_static_prefix as STATIC_PREFIX %}
+
+
+		
+<div id="viewmenu">
+	<button type="button" onclick="viewKeyboards();switchView('alphabet'); return false;">Alphabetic</button>
+	<button type="button" onclick="viewKeyboards();switchView('keyboard'); return false;">Keyboard</button> 
+	<button type="button" onclick="viewKeyboards();switchView('fontgrid'); return false;">Fontgrid</button>
+</div>
+
+
+<div id="keyboards">
+	<div id="bttns">
+		<button type="button" onclick="document.getElementById('output').focus();document.getElementById('output').select();">Select all</button>
+		<button type="button" onclick="deleteAll();">Delete all</button>
+		<button type="button" onclick="showcodepoints(document.getElementById('output'));">Codepoints</button> 
+		<button type="button" onclick="showdetail(document.getElementById('output'));">Analyse</button>
+		<button type="button" onclick="converter = window.open('http://people.w3.org/rishida/tools/conversion/?origin=cutpaste&amp;codepoints='+encodeURIComponent(document.getElementById('output').value), 'converter'); converter.focus();">Escapes</button>
+	</div>
+
+
+	<div id="controls" class="default"> 
+		<div class="control">Font list:<br />
+			<select id="fontList" name="fontList" onchange="selectFont(this.value); return false;">
+				<option value="0">Select...</option>
+				<option value="Charis SIL">Charis SIL</option>
+				<option value="Doulos SIL">Doulos SIL</option>
+				<option value="Gentium">Gentium</option>
+				<option value="Berling Antiqua">Berling Antiqua</option>
+				<option value="Cardo">Cardo</option>
+				<option value="Chrysanthi Unicode">Chrysanthi Unicode</option>
+				<option value="DejaVu Sans">DejaVu Sans </option>
+				<option value="DejaVu Serif">DejaVu Serif</option>
+				<option value="Dialekt Uni">Dialekt Uni</option>
+				<option value="Free Serif">Free Serif</option>
+				<option value="Frutiger Linotype">Frutiger Linotype</option>
+				<option value="Gandhari Unicode">Gandhari Unicode</option>
+				<option value="GentiumAlt">GentiumAlt</option>
+				<option value="Gentium Plus">Gentium Plus</option>
+				<option value="Hindsight Unicode">Hindsight Unicode</option>
+				<option value="IPA LS Uni">IPA LS Uni</option>
+				<option value="Lucida Sans">Lucida Sans</option>
+				<option value="Lucida Sans Unicode">Lucida Sans Unicode</option>
+				<option value="Thryomanes">Thryomanes</option>
+				<option value="TITUS Cyberbit Basic">TITUS Cyberbit Basic</option>
+				<option value="Arial Unicode MS">Arial Unicode MS</option>
+				<option value="Code2000">Code2000</option>
+				<option value="sans-serif">sans-serif</option>
+				<option value="serif">serif</option>
+			</select>
+		</div>
+		<div class="control">Custom font:<br />
+			<form action="none"
+				onsubmit="customFont(document.getElementById('fontName').value); return false;">
+				<input name="fontName" id="fontName" value="Doulos SIL" onclick="this.select();" /> 
+			</form>
+		</div>
+		<div class="control">Size:
+			<form action="none" onsubmit="changeFontSize(document.getElementById('fontSize').value); return false;">
+					<input name="fontSize" value="35" id="fontSize" size="3" onclick="this.select();" />px
+			</form>
+		</div>
+		<div class="control" title="One row is 100px. Decimals are ok.">Rows:<br />
+			<form action="none" onsubmit="document.getElementById( 'output' ).style.height = (document.getElementById( 'rows' ).value*100)+'px';  return false;">
+				<input name="rows" value="1.5" id="rows" size="3" onclick="this.select();" />
+			</form>
+		</div>
+		<div class="control">Add codepoint:
+			<form action="none" onsubmit="add(convertCP2Char(getElementById('addcode').value)); return false;">
+					<input name="addcode" id="addcode"  type="text" style="width: 90px; text-align:right;" /> 
+			</form>
+		</div>
+		<div class="control">Search for:
+			<form action="none"
+				 onsubmit="searchFor(getElementById('search').value, 'latin'); return false;">
+					<input name="search" id="search"  type="text" /> <img src="{{ STATIC_PREFIX }}img/ipa/clearsearch.png" onclick="searchFor('xxxxxx', 'latin');" style="cursor: pointer; vertical-align:top; margin:0 0px 0 0; border:0; padding:0; height: 15px;" alt="Clear search results." title="Clear search results." />
+			</form>
+		</div>
+		<div class="control" title="Change the normalization of the output.">Normalise: <span id="n11nform">NFC</span><br />
+			<img src="{{ STATIC_PREFIX }}img/ipa/nfc.png" alt="Convert output to Normalization Form C."  title="Convert output to Normalization Form C." onclick="_n11n='nfc'; document.getElementById( 'output' ).value=nfc(document.getElementById( 'output' ).value); document.getElementById('n11nform').innerHTML = 'NFC';"/>
+			<img src="{{ STATIC_PREFIX }}img/ipa/nfd.png" alt="Convert output to Normalization Form D."  title="Convert output to Normalization Form D."  onclick="_n11n='nfd'; document.getElementById( 'output' ).value=nfd(document.getElementById( 'output' ).value); document.getElementById('n11nform').innerHTML = 'NFD';"/>
+			<img src="{{ STATIC_PREFIX }}img/ipa/nfx.png" alt="Don't normalise output."  title="Don't normalise output."  
+					onclick="_n11n='none'; document.getElementById('n11nform').innerHTML = 'None';"/>
+		</div>
+		<div class="control" title="Change the normalization of the output.">Autofocus: <span id="focusindicator">On</span><br />
+			<img src="{{ STATIC_PREFIX }}img/ipa/yfx.png" alt="Turn autofocus on."  title="Turn autofocus on." 
+					onclick="_refocus=true; document.getElementById('focusindicator').innerHTML = 'On'; document.getElementById( 'output' ).focus();"/>
+			<img src="{{ STATIC_PREFIX }}img/ipa/nfx.png" alt="Turn autofocus off."  title="Turn autofocus off."  
+					onclick="_refocus=false; document.getElementById('focusindicator').innerHTML = 'Off';"/>
+		</div>
+	</div>
+
+
+<div id="chardata"><span id="charname">Click on characters to create text in the box below, then copy &amp; paste to your content.</span></div>
+<div id="tables">
+<div id="fontgrid" class="fontgrid"></div>
+
+<!-- SHAPE -->
+<div id="alphabet" >
+	<table id="kbd">
+		<tr>
+			<td rowspan="2">
+				<table id="consonants">
+					<tr>
+						<td><img title="Unvoiced bilabial plosive [0070: LATIN SMALL LETTER P]" src="{{ STATIC_PREFIX }}img/keys/0070.png" alt="p" /><img title="Voiced bilabial plosive [0062: LATIN SMALL LETTER B]" src="{{ STATIC_PREFIX }}img/keys/0062.png" alt="b" /></td>
+						<td></td>
+						<td></td>
+						<td><img title="Unvoiced dental plosive [0074: LATIN SMALL LETTER T]" src="{{ STATIC_PREFIX }}img/keys/0074.png" alt="t" /><img title="Voiced dental plosive [0064: LATIN SMALL LETTER D]" src="{{ STATIC_PREFIX }}img/keys/0064.png" alt="d" /></td>
+						<td></td>
+						<td><img title="Unvoiced retroflex plosive [0288: LATIN SMALL LETTER T WITH RETROFLEX HOOK]" src="{{ STATIC_PREFIX }}img/keys/0288.png" alt="ʈ" /><img title="Voiced retroflex plosive [0256: LATIN SMALL LETTER D WITH TAIL]" src="{{ STATIC_PREFIX }}img/keys/0256.png" alt="ɖ" /></td>
+						<td><img title="Unvoiced palatal plosive [0063: LATIN SMALL LETTER C]" src="{{ STATIC_PREFIX }}img/keys/0063.png" alt="c" /><img title="Voiced palatal plosive [025F: LATIN SMALL LETTER DOTLESS J WITH STROKE]" src="{{ STATIC_PREFIX }}img/keys/025F.png" alt="ɟ" /></td>
+						<td><img title="Unvoiced velar plosive [006B: LATIN SMALL LETTER K]" src="{{ STATIC_PREFIX }}img/keys/006B.png" alt="k" /><img title="Voiced velar plosive [0261: LATIN SMALL LETTER SCRIPT G]" src="{{ STATIC_PREFIX }}img/keys/0261.png" alt="ɡ" /></td>
+						<td><img title="Unvoiced uvular plosive [0071: LATIN SMALL LETTER Q]" src="{{ STATIC_PREFIX }}img/keys/0071.png" alt="q" /><img title="Voiced uvular plosive [0262: LATIN LETTER SMALL CAPITAL G]" src="{{ STATIC_PREFIX }}img/keys/0262.png" alt="ɢ" /></td>
+						<td></td>
+						<td><img title="Glottal plosive [0294: LATIN LETTER GLOTTAL STOP]" src="{{ STATIC_PREFIX }}img/keys/0294.png" alt="ʔ" /></td>
+					</tr>
+					<tr>
+						<td><img title="Bilabial nasal [006D: LATIN SMALL LETTER M ]" src="{{ STATIC_PREFIX }}img/keys/006D.png" alt="m" /></td>
+						<td><img title="Labiodental nasal [0271: LATIN SMALL LETTER M WITH HOOK ]" src="{{ STATIC_PREFIX }}img/keys/0271.png" alt="ɱ" /></td>
+						<td></td>
+						<td><img title="Alveolar nasal [006E: LATIN SMALL LETTER N]" src="{{ STATIC_PREFIX }}img/keys/006E.png" alt="n" /></td>
+						<td></td>
+						<td><img title="Retroflex nasal [0273: LATIN SMALL LETTER N WITH RETROFLEX HOOK]" src="{{ STATIC_PREFIX }}img/keys/0273.png" alt="ɳ" /></td>
+						<td><img title="Palatal nasal [0272: LATIN SMALL LETTER N WITH LEFT HOOK]" src="{{ STATIC_PREFIX }}img/keys/0272.png" alt="ɲ" /></td>
+						<td><img title="Velar nasal [014B: LATIN SMALL LETTER ENG]" src="{{ STATIC_PREFIX }}img/keys/014B.png" alt="ŋ" /></td>
+						<td><img title="Uvular nasal [0274: LATIN LETTER SMALL CAPITAL N]" src="{{ STATIC_PREFIX }}img/keys/0274.png" alt="ɴ" /></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td><img title="Bilabial trill [0299: LATIN LETTER SMALL CAPITAL B]" src="{{ STATIC_PREFIX }}img/keys/0299.png" alt="ʙ" /></td>
+						<td><img src="{{ STATIC_PREFIX }}img/keys/2C71.png" alt="ⱱ" title="Labiodental tap or flap [2C71: LATIN SMALL LETTER V WITH RIGHT HOOK]" /></td>
+						<td></td>
+						<td><img title="Alveolar trill [0072: LATIN SMALL LETTER R]" src="{{ STATIC_PREFIX }}img/keys/0072.png" alt="r" /><img title="Alveolar tap or flap [027E: LATIN SMALL LETTER R WITH FISHHOOK]" src="{{ STATIC_PREFIX }}img/keys/027E.png" alt="ɾ" /></td>
+						<td></td>
+						<td><img title="Retroflex tap or flap [027D: LATIN SMALL LETTER R WITH TAIL]" src="{{ STATIC_PREFIX }}img/keys/027D.png" alt="ɽ" /></td>
+						<td></td>
+						<td></td>
+						<td><img title="Uvular trill [0280: LATIN LETTER SMALL CAPITAL R]" src="{{ STATIC_PREFIX }}img/keys/0280.png" alt="ʀ" /></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td><img title="Unvoiced bilabial fricative [0278: LATIN SMALL LETTER PHI]" src="{{ STATIC_PREFIX }}img/keys/0278.png" alt="ɸ" /><img title="Voiced bilabial fricative [03B2: GREEK SMALL LETTER BETA]" src="{{ STATIC_PREFIX }}img/keys/03B2.png" alt="β" /></td>
+						<td><img title="Unvoiced labiodental fricative [0066: LATIN SMALL LETTER F]" src="{{ STATIC_PREFIX }}img/keys/0066.png" alt="f" /><img title="Voiced labiodental fricative [0076: LATIN SMALL LETTER V]" src="{{ STATIC_PREFIX }}img/keys/0076.png" alt="v" /></td>
+						<td><img title="Unvoiced dental fricative [03B8: GREEK SMALL LETTER THETA]" src="{{ STATIC_PREFIX }}img/keys/03B8.png" alt="θ" /><img title="Voiced dental fricative [00F0: LATIN SMALL LETTER ETH]" src="{{ STATIC_PREFIX }}img/keys/00F0.png" alt="ð" /></td>
+						<td><img title="Unvoiced alveolar fricative [0073: LATIN SMALL LETTER S]" src="{{ STATIC_PREFIX }}img/keys/0073.png" alt="s" /><img title="Voiced alveolar fricative [007A: LATIN SMALL LETTER Z]" src="{{ STATIC_PREFIX }}img/keys/007A.png" alt="z" /></td>
+						<td><img title="Unvoiced postalveolar fricative [0283: LATIN SMALL LETTER ESH]" src="{{ STATIC_PREFIX }}img/keys/0283.png" alt="ʃ" /><img title="Voiced postalveolar fricative [0292: LATIN SMALL LETTER EZH]" src="{{ STATIC_PREFIX }}img/keys/0292.png" alt="ʒ" /></td>
+						<td><img title="Unvoiced retroflex fricative [0282: LATIN SMALL LETTER S WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/0282.png" alt="ʂ" /><img title="Voiced retroflex fricative [0290: LATIN SMALL LETTER Z WITH RETROFLEX HOOK]" src="{{ STATIC_PREFIX }}img/keys/0290.png" alt="ʐ" /></td>
+						<td><img title="Unvoiced palatal fricative [00E7: LATIN SMALL LETTER C WITH CEDILLA]" src="{{ STATIC_PREFIX }}img/keys/00E7.png" alt="ç" /><img title="Voiced palatal fricative [029D: LATIN SMALL LETTER J WITH CROSSED-TAIL]" src="{{ STATIC_PREFIX }}img/keys/029D.png" alt="ʝ" /></td>
+						<td><img title="Unvoiced velar fricative [0078: LATIN SMALL LETTER X]" src="{{ STATIC_PREFIX }}img/keys/0078.png" alt="x" /><img title="Voiced velar fricative [0263: LATIN SMALL LETTER GAMMA]" src="{{ STATIC_PREFIX }}img/keys/0263.png" alt="ɣ" /></td>
+						<td><img title="Unvoiced uvular fricative [03C7: GREEK SMALL LETTER CHI]" src="{{ STATIC_PREFIX }}img/keys/03C7.png" alt="χ" /><img title="Voiced uvular fricative [0281: LATIN LETTER SMALL CAPITAL INVERTED R]" src="{{ STATIC_PREFIX }}img/keys/0281.png" alt="ʁ" /></td>
+						<td><img title="Unvoiced pharyngeal fricative [0127: LATIN SMALL LETTER H WITH STROKE]" src="{{ STATIC_PREFIX }}img/keys/0127.png" alt="ħ" /><img title="Voiced pharyngeal fricative [0295: LATIN LETTER PHARYNGEAL VOICED FRICATIVE]" src="{{ STATIC_PREFIX }}img/keys/0295.png" alt="ʕ" /></td>
+						<td><img title="Unvoiced glottal fricative [0068: LATIN SMALL LETTER H]" src="{{ STATIC_PREFIX }}img/keys/0068.png" alt="h" /><img title="Voiced glottal fricative [0266: LATIN SMALL LETTER H WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/0266.png" alt="ɦ" /></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td><img title="Labiodental approximant [028B: LATIN SMALL LETTER V WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/028B.png" alt="ʋ" /></td>
+						<td></td>
+						<td><img title="Alveolar approximant [0279: LATIN SMALL LETTER TURNED R]" src="{{ STATIC_PREFIX }}img/keys/0279.png" alt="ɹ" /></td>
+						<td></td>
+						<td><img title="Retroflex approximant [027B: LATIN SMALL LETTER TURNED R WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/027B.png" alt="ɻ" /></td>
+						<td><img title="Palatal approximant [006A: LATIN SMALL LETTER J]" src="{{ STATIC_PREFIX }}img/keys/006A.png" alt="j" /></td>
+						<td><img title="Velar approximant [0270: LATIN SMALL LETTER TURNED M WITH LONG LEG]" src="{{ STATIC_PREFIX }}img/keys/0270.png" alt="ɰ" /></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>&nbsp;</td>
+						<td><img title="Unvoiced alveolar lateral fricative [026C: LATIN SMALL LETTER L WITH BELT]" src="{{ STATIC_PREFIX }}img/keys/026C.png" alt="ɬ" /><img title="Voiced alveolar lateral fricative [026E: LATIN SMALL LETTER LEZH]" src="{{ STATIC_PREFIX }}img/keys/026E.png" alt="ɮ" /></td>
+						<td><img title="Alveolar lateral approximant [006C: LATIN SMALL LETTER L]" src="{{ STATIC_PREFIX }}img/keys/006C.png" alt="l" /></td>
+						<td></td>
+						<td><img title="Retroflex lateral approximant [026D: LATIN SMALL LETTER L WITH RETROFLEX HOOK]" src="{{ STATIC_PREFIX }}img/keys/026D.png" alt="ɭ" /></td>
+						<td><img title="Palatal lateral approximant [028E: LATIN SMALL LETTER TURNED Y]" src="{{ STATIC_PREFIX }}img/keys/028E.png" alt="ʎ" /></td>
+						<td><img title="Velar lateral approximant [029F: LATIN LETTER SMALL CAPITAL L]" src="{{ STATIC_PREFIX }}img/keys/029F.png" alt="ʟ" /><img title="Velarized voiced alveolar lateral approximant [026B: LATIN SMALL LETTER L WITH MIDDLE TILDE]" src="{{ STATIC_PREFIX }}img/keys/026B.png" alt="ɫ" /></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td><img title="Unvoiced bilabial implosive [01A5: LATIN SMALL LETTER P WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/01A5.png" alt="ƥ" /><img title="Voiced bilabial implosive [0253: LATIN SMALL LETTER B WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/0253.png" alt="ɓ" /></td>
+						<td></td>
+						<td></td>
+						<td><img title="Unvoiced alveolar implosive [01AD: LATIN SMALL LETTER T WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/01AD.png" alt="ƭ" /><img title="Voiced alveolar implosive [0257: LATIN SMALL LETTER D WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/0257.png" alt="ɗ" /></td>
+						<td></td>
+						<td></td>
+						<td><img title="Unvoiced palatal implosive [0188: LATIN SMALL LETTER C WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/0188.png" alt="ƈ" /><img title="Voiced palatal implosive [0284: LATIN SMALL LETTER DOTLESS J WITH STROKE AND HOOK]" src="{{ STATIC_PREFIX }}img/keys/0284.png" alt="ʄ" /></td>
+						<td><img title="Unvoiced velar implosive [0199: LATIN SMALL LETTER K WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/0199.png" alt="ƙ" /><img title="Voiced velar implosive [0260: LATIN SMALL LETTER G WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/0260.png" alt="ɠ" /></td>
+						<td><img title="Unvoiced uvular implosive [02A0: LATIN SMALL LETTER Q WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/02A0.png" alt="ʠ" /><img title="Voiced uvular implosive [029B: LATIN LETTER SMALL CAPITAL G WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/029B.png" alt="ʛ" /></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td><img title="Bilabial click [0298: LATIN LETTER BILABIAL CLICK]" src="{{ STATIC_PREFIX }}img/keys/0298.png" alt="ʘ" /></td>
+						<td><img title="Dental click [01C0: LATIN LETTER DENTAL CLICK]" src="{{ STATIC_PREFIX }}img/keys/01C0.png" alt="ǀ" /></td>
+						<td></td>
+						<td><img title="Alveolar lateral click [01C1: LATIN LETTER LATERAL CLICK ]" src="{{ STATIC_PREFIX }}img/keys/01C1.png" alt="ǁ" /></td>
+						<td><img title="(Post) alveolar click [01C3: LATIN LETTER RETROFLEX CLICK]" src="{{ STATIC_PREFIX }}img/keys/01C3.png" alt="ǃ" /></td>
+						<td><img title="Palato alveolar click [01C2: LATIN LETTER ALVEOLAR CLICK]" src="{{ STATIC_PREFIX }}img/keys/01C2.png" alt="ǂ" /></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				</table>
+			</td>
+			<td>
+				<div id="vowels">
+					<div><img 
+				style="margin-left: 4px;" title="High front vowel unrounded [0069: LATIN SMALL LETTER I]" src="{{ STATIC_PREFIX }}img/keys/0069.png" alt="i" /><img 
+				style="margin-left: 12px;" title="High front vowel rounded [0079: LATIN SMALL LETTER Y]" src="{{ STATIC_PREFIX }}img/keys/0079.png" alt="y" /><img 
+				style="margin-left: 69px;" title="High central vowel unrounded [0268: LATIN SMALL LETTER I WITH STROKE]" src="{{ STATIC_PREFIX }}img/keys/0268.png" alt="ɨ" /><img 
+				style="margin-left: 10px;" title="High central vowel rounded [0289: LATIN SMALL LETTER U BAR]" src="{{ STATIC_PREFIX }}img/keys/0289.png" alt="ʉ" /><img 
+				style="margin-left: 60px;" title="High back vowel unrounded [026F: LATIN SMALL LETTER TURNED M]" src="{{ STATIC_PREFIX }}img/keys/026F.png" alt="ɯ" /><img 
+				style="margin-left: 8px;" title="High back vowel rounded [0075: LATIN SMALL LETTER U]" src="{{ STATIC_PREFIX }}img/keys/0075.png" alt="u" /></div>
+					<div style="margin-top: 5px;"><img 
+				style="margin-left: 52px;" title="Semi-high front vowel unrounded [026A: LATIN LETTER SMALL CAPITAL I ]" src="{{ STATIC_PREFIX }}img/keys/026A.png" alt="ɪ" /><img 
+				style="margin-left: 8px;" title="Semi-high front vowel rounded [028F: LATIN LETTER SMALL CAPITAL Y]" src="{{ STATIC_PREFIX }}img/keys/028F.png" alt="ʏ" /><img 
+				style="margin-left: 100px;" title="Semi-high back vowel unrounded [028A: LATIN SMALL LETTER UPSILON]" src="{{ STATIC_PREFIX }}img/keys/028A.png" alt="ʊ" /></div>
+					<div style="margin-top: 5px;"><img 
+				style="margin-left: 32px;" title="Upper mid front vowel unrounded [0065: LATIN SMALL LETTER E]" src="{{ STATIC_PREFIX }}img/keys/0065.png" alt="e" /><img 
+				style="margin-left: 17px;" title="Upper mid front vowel rounded [00F8: LATIN SMALL LETTER O WITH STROKE]" src="{{ STATIC_PREFIX }}img/keys/00F8.png" alt="ø" /><img 
+				style="margin-left: 45px;" title="Upper-mid central unrounded vowel [0258: LATIN SMALL LETTER REVERSED E]" src="{{ STATIC_PREFIX }}img/keys/0258.png" alt="ɘ" /><img 
+				style="margin-left: 8px;" title="Mid central vowel rounded [0275: LATIN SMALL LETTER BARRED O]" src="{{ STATIC_PREFIX }}img/keys/0275.png" alt="ɵ" /><img 
+				style="margin-left: 47px;" title="Upper mid back vowel unrounded [0264: LATIN SMALL LETTER RAMS HORN]" src="{{ STATIC_PREFIX }}img/keys/0264.png" alt="ɤ" /><img 
+				style="margin-left: 8px;" title="Upper mid back vowel rounded [006F: LATIN SMALL LETTER O]" src="{{ STATIC_PREFIX }}img/keys/006F.png" alt="o" /></div>
+					<div style="margin-top: 5px;"><img style="margin-left: 145px;" title="Mid central vowel unrounded [0259: LATIN SMALL LETTER SCHWA]" src="{{ STATIC_PREFIX }}img/keys/0259.png" alt="ə" /></div>
+					<div style="margin-top: 5px;"><img 
+				style="margin-left: 72px;" title="Lower mid front vowel unrounded [025B: LATIN SMALL LETTER OPEN E]" src="{{ STATIC_PREFIX }}img/keys/025B.png" alt="ɛ" /><img 
+				style="margin-left: 17px;" title="Lower mid front vowel rounded [0153: LATIN SMALL LIGATURE OE]" src="{{ STATIC_PREFIX }}img/keys/0153.png" alt="œ" /><img 
+				style="margin-left: 20px;" title="Lower-mid central unrounded vowel [025C: LATIN SMALL LETTER REVERSED OPEN E]" src="{{ STATIC_PREFIX }}img/keys/025C.png" alt="ɜ" /><img 
+				style="margin-left: 10px;" title="Lower-mid central rounded vowel [025E: LATIN SMALL LETTER CLOSED REVERSED OPEN E]" src="{{ STATIC_PREFIX }}img/keys/025E.png" alt="ɞ" /><img 
+				style="margin-left: 29px;" title="Lower mid back vowel unrounded [028C: LATIN SMALL LETTER TURNED V ]" src="{{ STATIC_PREFIX }}img/keys/028C.png" alt="ʌ" /><img 
+				style="margin-left: 8px;" title="Lower mid back vowel rounded [0254: LATIN SMALL LETTER OPEN O]" src="{{ STATIC_PREFIX }}img/keys/0254.png" alt="ɔ" /></div>
+					<div style="margin-top: 5px;"><img
+				style="margin-left: 80px;" title="Lower mid front vowel [00E6: LATIN SMALL LETTER AE ]" src="{{ STATIC_PREFIX }}img/keys/00E6.png" alt="æ" /><img 
+				style="margin-left: 62px;" title="Lower central vowel rounded [0250: LATIN SMALL LETTER TURNED A]" src="{{ STATIC_PREFIX }}img/keys/0250.png" alt="ɐ" /></div>
+					<div style="margin-top: 5px;"><img
+				style="margin-left: 108px;" title="Low front vowel unrounded [0061: LATIN SMALL LETTER A]" src="{{ STATIC_PREFIX }}img/keys/0061.png" alt="a" /><img
+				style="margin-left: 20px;" title="Low front vowel rounded [0276: LATIN LETTER SMALL CAPITAL OE]" src="{{ STATIC_PREFIX }}img/keys/0276.png" alt="ɶ" /><img
+				style="margin-left: 47px;" title="Low back vowel unrounded [0251: LATIN SMALL LETTER ALPHA]" src="{{ STATIC_PREFIX }}img/keys/0251.png" alt="ɑ" /><img
+				style="margin-left: 8px;" title="Low back vowel rounded [0252: LATIN SMALL LETTER TURNED ALPHA]" src="{{ STATIC_PREFIX }}img/keys/0252.png" alt="ɒ" /></div>
+				</div>
+				<!--img title="25CC: DOTTED CIRCLE" src="{{ STATIC_PREFIX }}img/keys/25CC.png" alt="◌" id="dottedcircle" /-->
+			</td>
+			<td>
+				<!-- TONES -->
+				<table id="tones">
+					<tbody>
+						<tr>
+							<td><img title="Extra high tone [030B: COMBINING DOUBLE ACUTE ACCENT]" src="{{ STATIC_PREFIX }}img/keys/25CC030B.png" alt="̋" /></td>
+							<td><img title="Extra high tone bar [02E5: MODIFIER LETTER EXTRA-HIGH TONE BAR]" src="{{ STATIC_PREFIX }}img/keys/02E5.png" alt="˥" /></td>
+							<td><img title="Rising contour [030C: COMBINING CARON]" src="{{ STATIC_PREFIX }}img/keys/25CC030C.png" alt="̌" /></td>
+							<td><img title="Rising contour [02E9 02E5: MODIFIER LETTER EXTRA-LOW TONE BAR, EXTRA-HIGH TONE BAR]" src="{{ STATIC_PREFIX }}img/keys/rising.png" alt="˩˥" /></td>
+						</tr>
+						<tr>
+							<td><img title="High tone [0301: COMBINING ACUTE ACCENT]" src="{{ STATIC_PREFIX }}img/keys/25CC0301.png" alt="́" /></td>
+							<td><img title="High tone bar [02E6: MODIFIER LETTER HIGH TONE BAR]" src="{{ STATIC_PREFIX }}img/keys/02E6.png" alt="˦" /></td>
+							<td><img title="Falling contour [0302: COMBINING CIRCUMFLEX ACCENT]" src="{{ STATIC_PREFIX }}img/keys/25CC0302.png" alt="̂" /></td>
+							<td><img title="Falling contour [02E5 02E9: MODIFIER LETTER EXTRA-HIGH TONE BAR, EXTRA-LOW TONE BAR]" src="{{ STATIC_PREFIX }}img/keys/falling.png" alt="˥˩" /></td>
+						</tr>
+						<tr>
+							<td><img title="Mid tone [0304: COMBINING MACRON]" src="{{ STATIC_PREFIX }}img/keys/25CC0304.png" alt="̄" /></td>
+							<td><img title="Mid tone bar [02E7: MODIFIER LETTER MID TONE BAR]" src="{{ STATIC_PREFIX }}img/keys/02E7.png" alt="˧" /></td>
+							<td><img title="High rising contour [1DC4: COMBINING MACRON-ACUTE]" src="{{ STATIC_PREFIX }}img/keys/25CC1DC4.png" alt="᷄" /></td>
+							<td><img title="High rising contour [02E6 02E5: MODIFIER LETTER HIGH TONE BAR, EXTRA-HIGH TONE BAR]" src="{{ STATIC_PREFIX }}img/keys/highrising.png" alt="˦˥" /></td>
+						</tr>
+						<tr>
+							<td><img title="Low tone [0300: COMBINING GRAVE ACCENT]" src="{{ STATIC_PREFIX }}img/keys/25CC0300.png" alt="̀" /></td>
+							<td><img title="Low tone bar [02E8: MODIFIER LETTER LOW TONE BAR]" src="{{ STATIC_PREFIX }}img/keys/02E8.png" alt="˨" /></td>
+							<td><img title="Low rising contour [1DC5: COMBINING GRAVE-MACRON]" src="{{ STATIC_PREFIX }}img/keys/25CC1DC5.png" alt="᷅" /></td>
+							<td><img title="Low rising contour [02E9 02E8: MODIFIER LETTER EXTRA-LOW TONE BAR, LOW TONE BAR]" src="{{ STATIC_PREFIX }}img/keys/lowrising.png" alt="˩˨" /></td>
+						</tr>
+						<tr>
+							<td><img title="Extra low tone [030F: COMBINING DOUBLE GRAVE ACCENT]" src="{{ STATIC_PREFIX }}img/keys/25CC030F.png" alt="̏" /></td>
+							<td><img title="Extra low tone bar [02E9: MODIFIER LETTER EXTRA-LOW TONE BAR]" src="{{ STATIC_PREFIX }}img/keys/02E9.png" alt="˩" /></td>
+							<td><img title="Rising-falling contour [1DC8: COMBINING GRAVE-ACUTE-GRAVE]" src="{{ STATIC_PREFIX }}img/keys/25CC1DC8.png" alt="᷈" /></td>
+							<td><img title="Rising-falling contour [02E7 02E6 02E7: MODIFIER LETTER MID TONE BAR, HIGH TONE BAR, MID TONE BAR]" src="{{ STATIC_PREFIX }}img/keys/risingfalling.png" alt="˧˦˧" /></td>
+						</tr>
+						<tr>
+							<td><img title="Downstep [2193: DOWNWARDS ARROW]" src="{{ STATIC_PREFIX }}img/keys/2193.png" alt="↓" /></td>
+							<td></td>
+							<td><img title="Global rise [2197: NORTH EAST ARROW]" src="{{ STATIC_PREFIX }}img/keys/2197.png" alt="↗" /></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td><img title="Upstep [2191: UPWARDS ARROW]" src="{{ STATIC_PREFIX }}img/keys/2191.png" alt="↑" /></td>
+							<td></td>
+							<td><img title="Global fall [2198: SOUTH EAST ARROW]" src="{{ STATIC_PREFIX }}img/keys/2198.png" alt="↘" /></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</table>
+	<table id="bottomphones">
+		<tr>
+			<td>
+				<div id="other2"> <img title="Voiceless labial velar plosive [028D: LATIN SMALL LETTER TURNED W]" src="{{ STATIC_PREFIX }}img/keys/028D.png" alt="ʍ" /> <img title="Voiced labial velar approximant [0077: LATIN SMALL LETTER W]" src="{{ STATIC_PREFIX }}img/keys/0077.png" alt="w" /> <img title="Voiced labial palatal approximant [0265: LATIN SMALL LETTER TURNED H]" src="{{ STATIC_PREFIX }}img/keys/0265.png" alt="ɥ" /> <img title="Voiceless epiglottal fricative [029C: LATIN LETTER SMALL CAPITAL H]" src="{{ STATIC_PREFIX }}img/keys/029C.png" alt="ʜ" /> <img title="Voiced epiglottal fricative [02A2: LATIN LETTER REVERSED GLOTTAL STOP WITH STROKE]" src="{{ STATIC_PREFIX }}img/keys/02A2.png" alt="ʢ" /> <img title="Epiglottal plosive [02A1: LATIN LETTER GLOTTAL STOP WITH STROKE]" src="{{ STATIC_PREFIX }}img/keys/02A1.png" alt="ʡ" /> <img title="Voiceless alveolo-palatal fricative [0255: LATIN SMALL LETTER C WITH CURL]" src="{{ STATIC_PREFIX }}img/keys/0255.png" alt="ɕ" /> <img title="Voiced alveolo-palatal fricative [0291: LATIN SMALL LETTER Z WITH CURL]" src="{{ STATIC_PREFIX }}img/keys/0291.png" alt="ʑ" /> <img title="Simultaneous unvoiced postalveolar &amp; velar fricative [0267: LATIN SMALL LETTER HENG WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/0267.png" alt="ɧ" /> <img title="Voiced alveolar lateral flap [027A: LATIN SMALL LETTER TURNED R WITH LONG LEG]" src="{{ STATIC_PREFIX }}img/keys/027A.png" alt="ɺ" /> <img title="Voiceless dental affricate [02A6: LATIN SMALL LETTER TS DIGRAPH]" src="{{ STATIC_PREFIX }}img/keys/02A6.png" alt="ʦ" /> <img title="Voiced dental affricate [02A3: LATIN SMALL LETTER DZ DIGRAPH]" src="{{ STATIC_PREFIX }}img/keys/02A3.png" alt="ʣ" /> <img title="Voiceless postalveolar affricate [02A7: LATIN SMALL LETTER TESH DIGRAPH]" src="{{ STATIC_PREFIX }}img/keys/02A7.png" alt="ʧ" /> <img title="Voiced postalveolar affricate [02A4: LATIN SMALL LETTER DEZH DIGRAPH]" src="{{ STATIC_PREFIX }}img/keys/02A4.png" alt="ʤ" /> <img title="Voiceless alveolo-palatal affricate [02A8: LATIN SMALL LETTER TC DIGRAPH WITH CURL]" src="{{ STATIC_PREFIX }}img/keys/02A8.png" alt="ʨ" /> <img title="Voiced alveolo-palatal affricate [02A5: LATIN SMALL LETTER DZ DIGRAPH WITH CURL]" src="{{ STATIC_PREFIX }}img/keys/02A5.png" alt="ʥ" /> <img title="Rhoticised schwa [025A: LATIN SMALL LETTER SCHWA WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/025A.png" alt="ɚ" /> <img title="Rhoticised lower mid central vowel [025D: LATIN SMALL LETTER REVERSED OPEN E WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/025D.png" alt="ɝ" /></div>
+			</td>
+			<td style="text-align: center;">
+				<div><img src="{{ STATIC_PREFIX }}img/keys/002F.png" alt="/" title="002F: SOLIDUS" /> <img src="{{ STATIC_PREFIX }}img/keys/005B.png" alt="[" title="005B: LEFT SQUARE BRACKET" /> <img style="margin-right:20px;" src="{{ STATIC_PREFIX }}img/keys/005D.png" alt="]" title="005D: RIGHT SQUARE BRACKET" /> <img title="Long [02D0: MODIFIER LETTER TRIANGULAR COLON]" src="{{ STATIC_PREFIX }}img/keys/02D0.png" alt="ː" /> <img title="Half-long [02D1: MODIFIER LETTER HALF TRIANGULAR COLON]" src="{{ STATIC_PREFIX }}img/keys/02D1.png" alt="ˑ" /> <img title="Extra short diacritic [0306: COMBINING BREVE]" src="{{ STATIC_PREFIX }}img/keys/0306.png" alt="̆" /> <img title="Primary stress [02C8: MODIFIER LETTER VERTICAL LINE]" src="{{ STATIC_PREFIX }}img/keys/02C8.png" alt="ˈ" /> <img title="Secondary stress [02CC: MODIFIER LETTER LOW VERTICAL LINE]" src="{{ STATIC_PREFIX }}img/keys/02CC.png" alt="ˌ" /> <img title="Minor (foot) group [007C: VERTICAL LINE]" src="{{ STATIC_PREFIX }}img/keys/007C.png" alt="|" id="minorgroup" /> <img title="Major (intonation) group [2016: DOUBLE VERTICAL LINE]" src="{{ STATIC_PREFIX }}img/keys/2016.png" alt="‖" id="majorgroup" /> <img title="Syllable break [002E: FULL STOP]" src="{{ STATIC_PREFIX }}img/keys/002E.png" alt="." /> <img title="Linking (absence of a break) [203F: UNDERTIE]" src="{{ STATIC_PREFIX }}img/keys/203F.png" alt="‿" /> <img  style="margin-left: 10px" src="{{ STATIC_PREFIX }}img/keys/03C6.png" alt="φ" title="Prosodic phrase [03C6: GREEK SMALL LETTER PHI]" /><img src="{{ STATIC_PREFIX }}img/keys/03C9.png" alt="ω" title="Prosodic word [03C9: GREEK SMALL LETTER OMEGA]" /><img src="{{ STATIC_PREFIX }}img/keys/03C3.png" alt="σ" title="Syllable [03C3: GREEK SMALL LETTER SIGMA]" /><img src="{{ STATIC_PREFIX }}img/keys/03BC.png" alt="μ" title="Mora [03BC: GREEK SMALL LETTER MU]" /></div>
+			</td>
+			<td rowspan="2" style="padding-left: 20px;"><img title="0020: SPACE" src="{{ STATIC_PREFIX }}img/keys/0020short.png" alt=" " class="nogrid" /> <img title="00A0: NO-BREAK SPACE" src="{{ STATIC_PREFIX }}img/keys/00A0km.png" alt=" " class="nogrid" /></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<div> <img title="Voiceless diacritic [0325: COMBINING RING BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC0325.png" alt="̥" /> <img title="Voiceless diacritic [030A: COMBINING RING ABOVE]" src="{{ STATIC_PREFIX }}img/keys/25CC030A.png" alt="̊" /> <img title="Voiced diacritic [032C: COMBINING CARON BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC032C.png" alt="̬" /> <img title="Breathy voiced diacritic [0324: COMBINING DIAERESIS BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC0324.png" alt="̤" /> <img title="Creaky voiced diacritic [0330: COMBINING TILDE BELOW ]" src="{{ STATIC_PREFIX }}img/keys/25CC0330.png" alt="̰" /> <img title="Frictionalised diacritic [0353: COMBINING X BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC0353.png" alt="͓" /> <img title="Linguolabial diacritic [033C: COMBINING SEAGULL BELOW ]" src="{{ STATIC_PREFIX }}img/keys/25CC033C.png" alt="̼" /> <img title="Dental diacritic [032A: COMBINING BRIDGE BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC032A.png" alt="̪" /> <img title="Apical diacritic [033A: COMBINING INVERTED BRIDGE BELOW ]" src="{{ STATIC_PREFIX }}img/keys/25CC033A.png" alt="̺" /> <img title="Laminal diacritic [033B: COMBINING SQUARE BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC033B.png" alt="̻" /> <img title="More rounded diacritic [0339: COMBINING RIGHT HALF RING BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC0339.png" alt="̹" /> <img title="Less rounded diacritic [031C: COMBINING LEFT HALF RING BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC031C.png" alt="̜" /> <img title="Advanced diacritic [031F: COMBINING PLUS SIGN BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC031F.png" alt="̟" /> <img title="Retracted diacritic [0320: COMBINING MINUS SIGN BELOW ]" src="{{ STATIC_PREFIX }}img/keys/25CC0320.png" alt="̠" /> <img title="Centralised diacritic [0308: COMBINING DIAERESIS]" src="{{ STATIC_PREFIX }}img/keys/25CC0308.png" alt="̈" /> <img title="Mid-centralised diacritic [033D: COMBINING X ABOVE]" src="{{ STATIC_PREFIX }}img/keys/25CC033D.png" alt="̽" /> <img title="Syllabic diacritic [0329: COMBINING VERTICAL LINE BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC0329.png" alt="̩" /> <img title="Non-syllabic diacritic [032F: COMBINING INVERTED BREVE BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC032F.png" alt="̯" /> <img title="Rhoticity diacritic [02DE: MODIFIER LETTER RHOTIC HOOK ]" src="{{ STATIC_PREFIX }}img/keys/25CC02DE.png" alt="˞" /> <img title="Derhoticised diacritic [032E: COMBINING BREVE BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC032E.png" alt="̮" /> <img title="Retracted tongue root diacritic [0319: COMBINING RIGHT TACK BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC0319.png" alt="̙" /> <img title="Advanced tongue root diacritic [0318: COMBINING LEFT TACK BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC0318.png" alt="̘" /> <img title="Lowered diacritic [031E: COMBINING DOWN TACK BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC031E.png" alt="̞" /> <img title="Raised diacritic [031D: COMBINING UP TACK BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC031D.png" alt="̝" /> <img title="Velarised or pharyngealised diacritic [0334: COMBINING TILDE OVERLAY]" src="{{ STATIC_PREFIX }}img/keys/25CC0334.png" alt="̴" /> <img title="Nasalised diacritic [0303: COMBINING TILDE ]" src="{{ STATIC_PREFIX }}img/keys/25CC0303.png" alt="̃" /><img src="{{ STATIC_PREFIX }}img/keys/0328.png" alt="̨" title="Alternate nasalised diacritic [0328: COMBINING OGONEK]" />  <img title="Denasalised diacritic [034A: COMBINING NOT TILDE ABOVE]" src="{{ STATIC_PREFIX }}img/keys/25CC034A.png" alt="͊" /> <img title="Nasal emission [034B: COMBINING HOMOTHETIC ABOVE]" src="{{ STATIC_PREFIX }}img/keys/25CC034B.png" alt="͋" /> <img title="No audible release diacritic [031A: COMBINING LEFT ANGLE ABOVE]" src="{{ STATIC_PREFIX }}img/keys/25CC031A.png" alt="̚" /> <img title="Ejective diacritic [02BC: MODIFIER LETTER APOSTROPHE]" src="{{ STATIC_PREFIX }}img/keys/02BC.png" alt="ʼ" /> <img title="Aspirated diacritic [02B0: MODIFIER LETTER SMALL H]" src="{{ STATIC_PREFIX }}img/keys/02B0.png" alt="ʰ" /> <img title="Unaspirated diacritic [02ED: MODIFIER LETTER UNASPIRATED]" src="{{ STATIC_PREFIX }}img/keys/02ED.png" alt="˭" /> <img title="Nasal release [207F: SUPERSCRIPT LATIN SMALL LETTER N]" src="{{ STATIC_PREFIX }}img/keys/207F.png" alt="ⁿ" /> <img title="Lateral release [02E1: MODIFIER LETTER SMALL L]" src="{{ STATIC_PREFIX }}img/keys/02E1.png" alt="ˡ" /> <img title="Pharyngealised diacritic [02E4: MODIFIER LETTER SMALL REVERSED GLOTTAL STOP]" src="{{ STATIC_PREFIX }}img/keys/02E4.png" alt="ˤ" /> <img title="Velarised diacritic [02E0: MODIFIER LETTER SMALL GAMMA]" src="{{ STATIC_PREFIX }}img/keys/02E0.png" alt="ˠ" /> <img title="Palatalised diacritic [02B2: MODIFIER LETTER SMALL J]" src="{{ STATIC_PREFIX }}img/keys/02B2.png" alt="ʲ" /> <img title="Labialised diacritic [02B7: MODIFIER LETTER SMALL W]" src="{{ STATIC_PREFIX }}img/keys/02B7.png" alt="ʷ" /> <img title="Upper ligature tie [0361: COMBINING DOUBLE INVERTED BREVE]" src="{{ STATIC_PREFIX }}img/keys/25CC036125CC.png" alt="͡" /> <img title="Lower ligature tie [035C: COMBINING DOUBLE BREVE BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC035C25CC.png" alt="͜" /> </div>
+			</td>
+		</tr>
+	</table>
+</div>
+<!-- KEYBOARD -->
+<div id="keyboard">
+	<div class="keyboardrow">
+		<div class="key"><img title="Rhoticity diacritic [02DE: MODIFIER LETTER RHOTIC HOOK ]" src="{{ STATIC_PREFIX }}img/keys/25CC02DE.png" alt="˞" /><img title="No audible release diacritic [031A: COMBINING LEFT ANGLE ABOVE]" src="{{ STATIC_PREFIX }}img/keys/25CC031A.png" alt="̚" /><img title="Minor (foot) group [007C: VERTICAL LINE]" src="{{ STATIC_PREFIX }}img/keys/007C.png" alt="|" id="minorgroup2" /></div>
+		<div class="key"><img title="High central vowel unrounded [0268: LATIN SMALL LETTER I WITH STROKE]" src="{{ STATIC_PREFIX }}img/keys/0268.png" alt="ɨ" /><img title="(Post) alveolar click [01C3: LATIN LETTER RETROFLEX CLICK]" src="{{ STATIC_PREFIX }}img/keys/01C3.png" alt="ǃ" /><img title="Uvular nasal [0274: LATIN LETTER SMALL CAPITAL N]" src="{{ STATIC_PREFIX }}img/keys/0274.png" alt="ɴ" /></div>
+		<div class="key"><img title="Upper mid front vowel rounded [00F8: LATIN SMALL LETTER O WITH STROKE]" src="{{ STATIC_PREFIX }}img/keys/00F8.png" alt="ø" /><img title="Primary stress [02C8: MODIFIER LETTER VERTICAL LINE]" src="{{ STATIC_PREFIX }}img/keys/02C8.png" alt="ˈ" /><img title="Major (intonation) group [2016: DOUBLE VERTICAL LINE]" src="{{ STATIC_PREFIX }}img/keys/2016.png" alt="‖" id="majorgroup2" /></div>
+		<div class="key"><img title="Lower-mid central unrounded vowel [025C: LATIN SMALL LETTER REVERSED OPEN E]" src="{{ STATIC_PREFIX }}img/keys/025C.png" alt="ɜ" /><img title="Alveolar approximant [0279: LATIN SMALL LETTER TURNED R]" src="{{ STATIC_PREFIX }}img/keys/0279.png" alt="ɹ" /><img title="Retroflex approximant [027B: LATIN SMALL LETTER TURNED R WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/027B.png" alt="ɻ" /></div>
+		<div class="key"><img title="Alveolar tap or flap [027E: LATIN SMALL LETTER R WITH FISHHOOK]" src="{{ STATIC_PREFIX }}img/keys/027E.png" alt="ɾ" /><img title="0024 DOLLAR SIGN" src="{{ STATIC_PREFIX }}img/keys/0024.png" alt="$" /><img title="Retroflex tap or flap [027D: LATIN SMALL LETTER R WITH TAIL]" src="{{ STATIC_PREFIX }}img/keys/027D.png" alt="ɽ" /></div>
+		<span class="key"><img title="Velarized voiced alveolar lateral approximant [026B: LATIN SMALL LETTER L WITH MIDDLE TILDE]" src="{{ STATIC_PREFIX }}img/keys/026B.png" alt="ɫ" /><img title="Secondary stress [02CC: MODIFIER LETTER LOW VERTICAL LINE]" src="{{ STATIC_PREFIX }}img/keys/02CC.png" alt="ˌ" /><img title="Velar lateral approximant [029F: LATIN LETTER SMALL CAPITAL L]" src="{{ STATIC_PREFIX }}img/keys/029F.png" alt="ʟ" /></span>
+		<span class="key"><img title="Lower central vowel rounded [0250: LATIN SMALL LETTER TURNED A]" src="{{ STATIC_PREFIX }}img/keys/0250.png" alt="ɐ" /><img title="Non-syllabic diacritic [032F: COMBINING INVERTED BREVE BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC032F.png" alt="̯" /><img title="Voiced bilabial implosive [0253: LATIN SMALL LETTER B WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/0253.png" alt="ɓ" /></span>
+		<span class="key"><img title="Upper mid back vowel unrounded [0264: LATIN SMALL LETTER RAMS HORN]" src="{{ STATIC_PREFIX }}img/keys/0264.png" alt="ɤ" /><img title="Low front vowel rounded [0276: LATIN LETTER SMALL CAPITAL OE]" src="{{ STATIC_PREFIX }}img/keys/0276.png" alt="ɶ" /><img title="Velarised diacritic [02E0: MODIFIER LETTER SMALL GAMMA]" src="{{ STATIC_PREFIX }}img/keys/02E0.png" alt="ˠ" /></span> 
+		<span class="key"><img title="Mid central vowel rounded [0275: LATIN SMALL LETTER BARRED O]" src="{{ STATIC_PREFIX }}img/keys/0275.png" alt="ɵ" /><img title="002A ASTERISK" src="{{ STATIC_PREFIX }}img/keys/002A.png" alt="*" /><img title="Lower-mid central rounded vowel [025E: LATIN SMALL LETTER CLOSED REVERSED OPEN E]" src="{{ STATIC_PREFIX }}img/keys/025E.png" alt="ɞ" /></span> 
+		<span class="key"><img title="Lower mid front vowel rounded [0153: LATIN SMALL LIGATURE OE]" src="{{ STATIC_PREFIX }}img/keys/0153.png" alt="œ" /><img title="0028 LEFT PARENTHESIS" src="{{ STATIC_PREFIX }}img/keys/0028.png" alt="(" /><img title="Voiced velar implosive [0260: LATIN SMALL LETTER G WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/0260.png" alt="ɠ" /></span> 
+		<span class="key"><img title="Voiceless diacritic [0325: COMBINING RING BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC0325.png" alt="̥" /><img title="0029 RIGHT PARENTHESIS" src="{{ STATIC_PREFIX }}img/keys/0029.png" alt=")" /><img title="Voiceless diacritic [030A: COMBINING RING ABOVE]" src="{{ STATIC_PREFIX }}img/keys/25CC030A.png" alt="̊" /></span> 
+		<span class="key"><img title="002D HYPHEN-MINUS" src="{{ STATIC_PREFIX }}img/keys/002D.png" alt="-" /><img title="Linking (absence of a break) [203F: UNDERTIE]" src="{{ STATIC_PREFIX }}img/keys/203F.png" alt="‿" /><img title="Upper ligature tie [0361: COMBINING DOUBLE INVERTED BREVE]" src="{{ STATIC_PREFIX }}img/keys/25CC036125CC.png" alt="͡" /></span> 
+		<span class="key"><img title="Syllabic diacritic [0329: COMBINING VERTICAL LINE BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC0329.png" alt="̩" /><img title="002B PLUS SIGN" src="{{ STATIC_PREFIX }}img/keys/002B.png" alt="+" /><img title="Palato alveolar click [01C2: LATIN LETTER ALVEOLAR CLICK]" src="{{ STATIC_PREFIX }}img/keys/01C2.png" alt="ǂ" /></span></div>
+	<div class="keyboardrow" style="padding-left: 70px;">
+		<span class="key"><img title="Unvoiced uvular plosive [0071: LATIN SMALL LETTER Q]" src="{{ STATIC_PREFIX }}img/keys/0071.png" alt="q" /><img title="Low back vowel rounded [0252: LATIN SMALL LETTER TURNED ALPHA]" src="{{ STATIC_PREFIX }}img/keys/0252.png" alt="ɒ" /><img title="Raised diacritic [031D: COMBINING UP TACK BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC031D.png" alt="̝" /></span>
+		<span class="key"><img title="Voiced labial velar approximant [0077: LATIN SMALL LETTER W]" src="{{ STATIC_PREFIX }}img/keys/0077.png" alt="w" /><img title="Voiceless labial velar plosive [028D: LATIN SMALL LETTER TURNED W]" src="{{ STATIC_PREFIX }}img/keys/028D.png" alt="ʍ" /><img title="Labialised diacritic [02B7: MODIFIER LETTER SMALL W]" src="{{ STATIC_PREFIX }}img/keys/02B7.png" alt="ʷ" /></span>
+		<span class="key"><img title="Upper mid front vowel unrounded [0065: LATIN SMALL LETTER E]" src="{{ STATIC_PREFIX }}img/keys/0065.png" alt="e" /><img title="Lower mid front vowel unrounded [025B: LATIN SMALL LETTER OPEN E]" src="{{ STATIC_PREFIX }}img/keys/025B.png" alt="ɛ" /><img title="Upper-mid central unrounded vowel [0258: LATIN SMALL LETTER REVERSED E]" src="{{ STATIC_PREFIX }}img/keys/0258.png" alt="ɘ" /></span>
+		<span class="key"><img title="Alveolar trill [0072: LATIN SMALL LETTER R]" src="{{ STATIC_PREFIX }}img/keys/0072.png" alt="r" /><img title="Voiced uvular fricative [0281: LATIN LETTER SMALL CAPITAL INVERTED R]" src="{{ STATIC_PREFIX }}img/keys/0281.png" alt="ʁ" /><img title="Uvular trill [0280: LATIN LETTER SMALL CAPITAL R]" src="{{ STATIC_PREFIX }}img/keys/0280.png" alt="ʀ" /></span>
+		<span class="key"><img title="Unvoiced dental plosive [0074: LATIN SMALL LETTER T]" src="{{ STATIC_PREFIX }}img/keys/0074.png" alt="t" /><img title="Unvoiced dental fricative [03B8: GREEK SMALL LETTER THETA]" src="{{ STATIC_PREFIX }}img/keys/03B8.png" alt="θ" /><img title="Unvoiced retroflex plosive [0288: LATIN SMALL LETTER T WITH RETROFLEX HOOK]" src="{{ STATIC_PREFIX }}img/keys/0288.png" alt="ʈ" /></span>
+		<span class="key"><img title="High front vowel rounded [0079: LATIN SMALL LETTER Y]" src="{{ STATIC_PREFIX }}img/keys/0079.png" alt="y" /><img title="Semi-high front vowel rounded [028F: LATIN LETTER SMALL CAPITAL Y]" src="{{ STATIC_PREFIX }}img/keys/028F.png" alt="ʏ" /><img title="Lowered diacritic [031E: COMBINING DOWN TACK BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC031E.png" alt="̞" /></span>
+		<span class="key"><img title="High back vowel rounded [0075: LATIN SMALL LETTER U]" src="{{ STATIC_PREFIX }}img/keys/0075.png" alt="u" /><img title="Semi-high back vowel unrounded [028A: LATIN SMALL LETTER UPSILON]" src="{{ STATIC_PREFIX }}img/keys/028A.png" alt="ʊ" /><img title="Voiced glottal fricative [0266: LATIN SMALL LETTER H WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/0266.png" alt="ɦ" /></span>
+		<span class="key"><img title="High front vowel unrounded [0069: LATIN SMALL LETTER I]" src="{{ STATIC_PREFIX }}img/keys/0069.png" alt="i" /><img title="Semi-high front vowel unrounded [026A: LATIN LETTER SMALL CAPITAL I ]" src="{{ STATIC_PREFIX }}img/keys/026A.png" alt="ɪ" /><img title="Advanced diacritic [031F: COMBINING PLUS SIGN BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC031F.png" alt="̟" /></span> 
+		<span class="key"><img title="Upper mid back vowel rounded [006F: LATIN SMALL LETTER O]" src="{{ STATIC_PREFIX }}img/keys/006F.png" alt="o" /><img title="Lower mid back vowel rounded [0254: LATIN SMALL LETTER OPEN O]" src="{{ STATIC_PREFIX }}img/keys/0254.png" alt="ɔ" /><img title="Bilabial click [0298: LATIN LETTER BILABIAL CLICK]" src="{{ STATIC_PREFIX }}img/keys/0298.png" alt="ʘ" /></span> 
+		<span class="key"><img title="Unvoiced bilabial plosive [0070: LATIN SMALL LETTER P]" src="{{ STATIC_PREFIX }}img/keys/0070.png" alt="p" /><img title="Labiodental approximant [028B: LATIN SMALL LETTER V WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/028B.png" alt="ʋ" /><img title="Unvoiced bilabial fricative [0278: LATIN SMALL LETTER PHI]" src="{{ STATIC_PREFIX }}img/keys/0278.png" alt="ɸ" /></span> 
+		<span class="key"><img src="{{ STATIC_PREFIX }}img/keys/005B.png" alt="[" title="005B: LEFT SQUARE BRACKET" /><img title="Lower mid front vowel [00E6: LATIN SMALL LETTER AE ]" src="{{ STATIC_PREFIX }}img/keys/00E6.png" alt="æ" /><img title="Voiced alveolar implosive [0257: LATIN SMALL LETTER D WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/0257.png" alt="ɗ" /></span> 
+		<span class="key"><img src="{{ STATIC_PREFIX }}img/keys/005D.png" alt="]" title="005D: RIGHT SQUARE BRACKET" /><img title="High central vowel rounded [0289: LATIN SMALL LETTER U BAR]" src="{{ STATIC_PREFIX }}img/keys/0289.png" alt="ʉ" /><img title="Dental diacritic [032A: COMBINING BRIDGE BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC032A.png" alt="̪" /></span></div>
+	<div class="keyboardrow" style="padding-left: 80px;">
+		<span class="key"><img title="Low front vowel unrounded [0061: LATIN SMALL LETTER A]" src="{{ STATIC_PREFIX }}img/keys/0061.png" alt="a" /><img title="Low back vowel unrounded [0251: LATIN SMALL LETTER ALPHA]" src="{{ STATIC_PREFIX }}img/keys/0251.png" alt="ɑ" /><img title="Retracted diacritic [0320: COMBINING MINUS SIGN BELOW ]" src="{{ STATIC_PREFIX }}img/keys/25CC0320.png" alt="̠" /></span>
+		<span class="key"><img title="Unvoiced alveolar fricative [0073: LATIN SMALL LETTER S]" src="{{ STATIC_PREFIX }}img/keys/0073.png" alt="s" /><img title="Unvoiced postalveolar fricative [0283: LATIN SMALL LETTER ESH]" src="{{ STATIC_PREFIX }}img/keys/0283.png" alt="ʃ" /><img title="Unvoiced retroflex fricative [0282: LATIN SMALL LETTER S WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/0282.png" alt="ʂ" /></span>
+		<span class="key"><img title="Voiced dental plosive [0064: LATIN SMALL LETTER D]" src="{{ STATIC_PREFIX }}img/keys/0064.png" alt="d" /><img title="Voiced dental fricative [00F0: LATIN SMALL LETTER ETH]" src="{{ STATIC_PREFIX }}img/keys/00F0.png" alt="ð" /><img title="Voiced retroflex plosive [0256: LATIN SMALL LETTER D WITH TAIL]" src="{{ STATIC_PREFIX }}img/keys/0256.png" alt="ɖ" /></span>
+		<span class="key"><img title="Unvoiced labiodental fricative [0066: LATIN SMALL LETTER F]" src="{{ STATIC_PREFIX }}img/keys/0066.png" alt="f" /><img title="Labiodental nasal [0271: LATIN SMALL LETTER M WITH HOOK ]" src="{{ STATIC_PREFIX }}img/keys/0271.png" alt="ɱ" /><img title="Voiced palatal plosive [025F: LATIN SMALL LETTER DOTLESS J WITH STROKE]" src="{{ STATIC_PREFIX }}img/keys/025F.png" alt="ɟ" /></span>
+		<span class="key"><img title="Voiced velar plosive [0261: LATIN SMALL LETTER SCRIPT G]" src="{{ STATIC_PREFIX }}img/keys/0261.png" alt="ɡ" /><img title="Voiced velar fricative [0263: LATIN SMALL LETTER GAMMA]" src="{{ STATIC_PREFIX }}img/keys/0263.png" alt="ɣ" /><img title="Voiced uvular plosive [0262: LATIN LETTER SMALL CAPITAL G]" src="{{ STATIC_PREFIX }}img/keys/0262.png" alt="ɢ" /></span>
+		<span class="key"><img title="Unvoiced glottal fricative [0068: LATIN SMALL LETTER H]" src="{{ STATIC_PREFIX }}img/keys/0068.png" alt="h" /><img title="Voiced labial palatal approximant [0265: LATIN SMALL LETTER TURNED H]" src="{{ STATIC_PREFIX }}img/keys/0265.png" alt="ɥ" /><img title="Aspirated diacritic [02B0: MODIFIER LETTER SMALL H]" src="{{ STATIC_PREFIX }}img/keys/02B0.png" alt="ʰ" /></span>
+		<span class="key"><img title="Palatal approximant [006A: LATIN SMALL LETTER J]" src="{{ STATIC_PREFIX }}img/keys/006A.png" alt="j" /><img title="Palatal nasal [0272: LATIN SMALL LETTER N WITH LEFT HOOK]" src="{{ STATIC_PREFIX }}img/keys/0272.png" alt="ɲ" /><img title="Voiced palatal fricative [029D: LATIN SMALL LETTER J WITH CROSSED-TAIL]" src="{{ STATIC_PREFIX }}img/keys/029D.png" alt="ʝ" /></span>
+		<span class="key"><img title="Unvoiced velar plosive [006B: LATIN SMALL LETTER K]" src="{{ STATIC_PREFIX }}img/keys/006B.png" alt="k" /><img title="Unvoiced alveolar lateral fricative [026C: LATIN SMALL LETTER L WITH BELT]" src="{{ STATIC_PREFIX }}img/keys/026C.png" alt="ɬ" /><img title="Voiced alveolar lateral fricative [026E: LATIN SMALL LETTER LEZH]" src="{{ STATIC_PREFIX }}img/keys/026E.png" alt="ɮ" /></span> 
+		<span class="key"><img title="Alveolar lateral approximant [006C: LATIN SMALL LETTER L]" src="{{ STATIC_PREFIX }}img/keys/006C.png" alt="l" /><img title="Palatal lateral approximant [028E: LATIN SMALL LETTER TURNED Y]" src="{{ STATIC_PREFIX }}img/keys/028E.png" alt="ʎ" /><img title="Retroflex lateral approximant [026D: LATIN SMALL LETTER L WITH RETROFLEX HOOK]" src="{{ STATIC_PREFIX }}img/keys/026D.png" alt="ɭ" /></span> 
+		<span class="key"><img title="003B SEMICOLON" src="{{ STATIC_PREFIX }}img/keys/003B.png" alt=";" /><img title="Long [02D0: MODIFIER LETTER TRIANGULAR COLON]" src="{{ STATIC_PREFIX }}img/keys/02D0.png" alt="ː" /><img title="Centralised diacritic [0308: COMBINING DIAERESIS]" src="{{ STATIC_PREFIX }}img/keys/25CC0308.png" alt="̈" /></span><span class="key"><img title="Palatalised diacritic [02B2: MODIFIER LETTER SMALL J]" src="{{ STATIC_PREFIX }}img/keys/02B2.png" alt="ʲ" /><img title="Mid central vowel unrounded [0259: LATIN SMALL LETTER SCHWA]" src="{{ STATIC_PREFIX }}img/keys/0259.png" alt="ə" /><img title="Rhoticised schwa [025A: LATIN SMALL LETTER SCHWA WITH HOOK]" src="{{ STATIC_PREFIX }}img/keys/025A.png" alt="ɚ" /></span><span class="key"><img title="0023 NUMBER SIGN" src="{{ STATIC_PREFIX }}img/keys/0023.png" alt="#" /><img title="Nasalised diacritic [0303: COMBINING TILDE ]" src="{{ STATIC_PREFIX }}img/keys/25CC0303.png" alt="̃" /><img title="Creaky voiced diacritic [0330: COMBINING TILDE BELOW ]" src="{{ STATIC_PREFIX }}img/keys/25CC0330.png" alt="̰" /></span> </div>
+	<div class="keyboardrow" style="padding-left: 100px;">
+		<span class="key"><img title="Voiced alveolar fricative [007A: LATIN SMALL LETTER Z]" src="{{ STATIC_PREFIX }}img/keys/007A.png" alt="z" /><img title="Voiced postalveolar fricative [0292: LATIN SMALL LETTER EZH]" src="{{ STATIC_PREFIX }}img/keys/0292.png" alt="ʒ" /><img title="Voiced retroflex fricative [0290: LATIN SMALL LETTER Z WITH RETROFLEX HOOK]" src="{{ STATIC_PREFIX }}img/keys/0290.png" alt="ʐ" /></span>
+		<span class="key"><img title="Unvoiced velar fricative [0078: LATIN SMALL LETTER X]" src="{{ STATIC_PREFIX }}img/keys/0078.png" alt="x" /><img title="Unvoiced uvular fricative [03C7: GREEK SMALL LETTER CHI]" src="{{ STATIC_PREFIX }}img/keys/03C7.png" alt="χ" /><img title="Unvoiced pharyngeal fricative [0127: LATIN SMALL LETTER H WITH STROKE]" src="{{ STATIC_PREFIX }}img/keys/0127.png" alt="ħ" /></span>
+		<span class="key"><img title="Unvoiced palatal plosive [0063: LATIN SMALL LETTER C]" src="{{ STATIC_PREFIX }}img/keys/0063.png" alt="c" /><img title="Unvoiced palatal fricative [00E7: LATIN SMALL LETTER C WITH CEDILLA]" src="{{ STATIC_PREFIX }}img/keys/00E7.png" alt="ç" /><img title="Voiceless alveolo-palatal fricative [0255: LATIN SMALL LETTER C WITH CURL]" src="{{ STATIC_PREFIX }}img/keys/0255.png" alt="ɕ" /></span>
+		<span class="key"><img title="Voiced labiodental fricative [0076: LATIN SMALL LETTER V]" src="{{ STATIC_PREFIX }}img/keys/0076.png" alt="v" /><img title="Lower mid back vowel unrounded [028C: LATIN SMALL LETTER TURNED V ]" src="{{ STATIC_PREFIX }}img/keys/028C.png" alt="ʌ" /><img title="Voiced alveolo-palatal fricative [0291: LATIN SMALL LETTER Z WITH CURL]" src="{{ STATIC_PREFIX }}img/keys/0291.png" alt="ʑ" /></span>
+		<span class="key"><img title="Voiced bilabial plosive [0062: LATIN SMALL LETTER B]" src="{{ STATIC_PREFIX }}img/keys/0062.png" alt="b" /><img title="Voiced bilabial fricative [03B2: GREEK SMALL LETTER BETA]" src="{{ STATIC_PREFIX }}img/keys/03B2.png" alt="β" /><img title="Bilabial trill [0299: LATIN LETTER SMALL CAPITAL B]" src="{{ STATIC_PREFIX }}img/keys/0299.png" alt="ʙ" /></span>
+		<span class="key"><img title="Alveolar nasal [006E: LATIN SMALL LETTER N]" src="{{ STATIC_PREFIX }}img/keys/006E.png" alt="n" /><img title="Velar nasal [014B: LATIN SMALL LETTER ENG]" src="{{ STATIC_PREFIX }}img/keys/014B.png" alt="ŋ" /><img title="Retroflex nasal [0273: LATIN SMALL LETTER N WITH RETROFLEX HOOK]" src="{{ STATIC_PREFIX }}img/keys/0273.png" alt="ɳ" /></span>
+		<span class="key"style="width:70px;"><img title="Bilabial nasal [006D: LATIN SMALL LETTER M ]" src="{{ STATIC_PREFIX }}img/keys/006D.png" alt="m" /><img style="margin-left:0; margin-right:0;" title="High back vowel unrounded [026F: LATIN SMALL LETTER TURNED M]" src="{{ STATIC_PREFIX }}img/keys/026F.png" alt="ɯ" /><img title="Velar approximant [0270: LATIN SMALL LETTER TURNED M WITH LONG LEG]" src="{{ STATIC_PREFIX }}img/keys/0270.png" alt="ɰ" /></span>
+		<span class="key"><img title="002C COMMA" src="{{ STATIC_PREFIX }}img/keys/002C.png" alt="," /><img title="Extra short diacritic [0306: COMBINING BREVE]" src="{{ STATIC_PREFIX }}img/keys/0306.png" alt="̆" /><img title="Ejective diacritic [02BC: MODIFIER LETTER APOSTROPHE]" src="{{ STATIC_PREFIX }}img/keys/02BC.png" alt="ʼ" /></span> 
+		<span class="key"><img title="Syllable break [002E: FULL STOP]" src="{{ STATIC_PREFIX }}img/keys/002E.png" alt="." /><img title="2192  RIGHTWARDS ARROW" src="{{ STATIC_PREFIX }}img/keys/2192.png" alt="→" /><img title="Breathy voiced diacritic [0324: COMBINING DIAERESIS BELOW]" src="{{ STATIC_PREFIX }}img/keys/25CC0324.png" alt="̤" /></span> 
+		<span class="key"><img src="{{ STATIC_PREFIX }}img/keys/002F.png" alt="/" title="002F: SOLIDUS" /><img title="Glottal plosive [0294: LATIN LETTER GLOTTAL STOP]" src="{{ STATIC_PREFIX }}img/keys/0294.png" alt="ʔ" /><img title="Voiced pharyngeal fricative [0295: LATIN LETTER PHARYNGEAL VOICED FRICATIVE]" src="{{ STATIC_PREFIX }}img/keys/0295.png" alt="ʕ" /></span></div>
+	<div class="keyboardrow" style="padding-left: 140px;"><span class="key" style="width: 242px; border:0; margin-right: 30px;"><img title="0020: SPACE" src="{{ STATIC_PREFIX }}img/keys/space.png" alt=" " /></span> <span class="key" style="width: 84px; border:0;"><img title="00A0: NO-BREAK SPACE" src="{{ STATIC_PREFIX }}img/keys/nbsp.png" alt=" " /></span></div>
+</div>
+
+</div>
+<!-- end of tables -->
+
+
+</div>
+

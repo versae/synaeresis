@@ -3,7 +3,17 @@
 
 {% block extra_scripts %}
 {{ block.super }}
-{{ entry_form.media }}
+
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/functions11.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/n11n.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/n11ndata-lite.js"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/ipa.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/style11.css" />
+<link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/ipa_search.css" />
+
+<!--{{ entry_form.media }}-->
 {% endblock %}
 
 {% block startbody %}
