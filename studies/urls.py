@@ -3,7 +3,4 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('studies.views',
 
-    # index
-    url(r'^$', 'map', name="mapper"),
-
 )

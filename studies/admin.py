@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+from django import forms
 from django.contrib import admin
 
 from guardian.admin import GuardedModelAdmin
 
 from studies.models import Production, Language
-
 
 
 class BaseAdmin(GuardedModelAdmin):
@@ -49,11 +49,29 @@ class SpeakerAdmin(BaseAdmin):
         formset.save_m2m()
 
 
+class ProductionAdminForm(forms.ModelForm):
+
+    class Meta:
+        model = Production
+        widgets = {
+           'ipa_transcription': forms.TextInput(attrs={'class':
+                                                       'vTextField output'}),
+#           'rfe_transcription': forms.TextInput(attrs={'class':
+#                                                       'vTextField output'})
+       }
+
+
 class ProductionAdmin(GuardedModelAdmin):
 
     class Media:
-        js = ("admin/js/categories.js", )
-
+        js = ("admin/js/categories.js", 
+              "js/ipa.js",
+              "js/n11n.js",
+              "js/n11ndata-lite.js")
+        css = {
+                'all': ('css/style11.css','css/ipa.css'),
+              }
+    form = ProductionAdminForm
     readonly_fields = ('frequency', )
     exclude = ('user', 'frequency')
     search_fields = ('word', 'lemma', 'user__username',
@@ -65,6 +83,7 @@ class ProductionAdmin(GuardedModelAdmin):
                     'lemma', 'category', 'features',
                     'date')
     lexical_fields = set()
+
     for categories in Production.CATEGORY_FIELDS.values():
         for value in categories:
             lexical_fields.add(value)

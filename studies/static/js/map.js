@@ -54,6 +54,10 @@ function initialize() {
     }
     map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
+    $("#toggleKeyboard").click(function(e) {
+        $("#phoneticKeyboard").toggle();
+        return false;
+    });
     var form = $("#searchForm");
     var resultsCount = 1;
     form.submit(function (e) {
@@ -63,6 +67,7 @@ function initialize() {
             q: $("#id_q").val().trim(),
             match: $("#id_match").val().trim(),
             where: $("#id_where").val().trim(),
+            study: $("#id_study").val().trim(),
         };
         if (data.q != "") {
             $(".well").show();

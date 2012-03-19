@@ -19,7 +19,13 @@ urlpatterns = patterns('',
     # map
     url(r'^map/', "studies.views.mapper", name="map"),
 
-    # grif
+    # keyboard
+    url(r'^keyboard/(?P<input_id>\w+)$', "studies.views.ipa_keyboard",
+        name="keyboard_args"),
+    url(r'^keyboard/$', "studies.views.ipa_keyboard",
+        name="keyboard"),
+
+    # grid
     url(r'^grid/', "studies.views.grid", name="grid"),
 
     # i18n

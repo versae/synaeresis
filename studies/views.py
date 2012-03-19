@@ -84,6 +84,12 @@ def grid(request):
                               context_instance=RequestContext(request))
 
 
+def ipa_keyboard(request, input_id=None):
+    input_id = input_id or request.GET.get("input_id", "output")
+    return render_to_response('ipa.html', {"input_id": input_id},
+                              context_instance=RequestContext(request))
+
+
 def search(request):
     data = request.GET.copy()
     search_form = SearchForm(label_suffix="", data=data)

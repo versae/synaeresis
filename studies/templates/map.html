@@ -5,6 +5,7 @@
 {{ block.super }}
 <script type="text/javascript" src="http://www.google.com/jsapi?key={{ GOOGLE_API_KEY }}"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/map.js"></script>
+{{ search_form.media }}
 {% endblock %}
 
 {% block body_attrs %}
@@ -21,6 +22,7 @@ onload="initialize()"
         {{ field }}
 {% endfor %}
 <input type="submit" title="{% trans "Search" %}" id="search-submit" value="">
+<a href="#" id="toggleKeyboard" class="keyboard">{% trans "Keyboard" %}</a>
 </span>
 <span class="main-search">
 {{ search_form.as_p }}
