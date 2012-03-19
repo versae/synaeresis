@@ -7,7 +7,6 @@ $(document).ready(function(){
         $.ajax({url: '/keyboard/',
                 data: {"input_id": self.attr("id")},
                 success: function(payload){
-                    self.parent().append(payload);
                     var anchor = $("<A>");
                     anchor.attr("href", "javascript:void(0);");
                     anchor.attr("id");
@@ -17,6 +16,7 @@ $(document).ready(function(){
                         $("#phoneticKeyboard").toggle();
                     });
                     self.parent().append(anchor);
+                    self.parent().append(payload);
                     initialise();
                 },
                 dataType: 'html',

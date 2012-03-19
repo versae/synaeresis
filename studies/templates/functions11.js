@@ -231,7 +231,7 @@ function u ( node ) {
 
     
     
-function switchView (toView) {
+function switchView(toView) {
     // toView: string, id of the div surrounding the content to be viewed
     // _view: string, stores the name of the div id so that addchar() can act in a view sensitive way
     
