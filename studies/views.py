@@ -6,6 +6,7 @@ from urllib import urlencode
 from django.core import serializers
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.db import connection, DatabaseError
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
@@ -31,15 +32,18 @@ def mapper(request):
             options = search_options_form.cleaned_data
             if q:
                 to_search = options["where"]
-                key = "productions__%s__%s" % (to_search,
-                                              options.get("match") or "iexact")
+                key = "productions__%s__%s" \
+                      % (to_search, options.get("match") or "iexact")
                 params = {key: q}
                 if data["study"]:
                     params.update({
                         "productions__speaker__studies__id": data["study"],
                     })
                 references = GeospatialReference.objects.filter(**params)
-                entries = references.distinct()
+                annotated_entries = references.distinct().annotate(
+                    num_productions=Count('productions')
+                )
+                entries = [dict(e) for e in annotated_entries.values()]
                 result = {
                     "id": data["id"]
                 }
@@ -47,8 +51,8 @@ def mapper(request):
                     result.update({
                         "data": entries
                     })
-                return HttpResponse(json_encode(result), mimetype='application/json',
-                                    status=200)
+                return HttpResponse(json_encode(result),
+                                    status=200, mimetype='application/json')
                 # Grouping by not documented API
                 # entry_list.query.group_by = ['lemma']
                 paginator = Paginator(entry_list, 15)

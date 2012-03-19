@@ -26,8 +26,8 @@ function initialize() {
     var oldDirections = [];
     var currentDirections = null;
     var mapOptions = {
-      zoom: 12,
-      center: new google.maps.LatLng(-28.643387, 153.612224),
+      zoom: 3,
+      center: new google.maps.LatLng(30.751873645557307, -40.417622248316455),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       mapTypeControl: true,
       mapTypeControlOptions: {
@@ -53,11 +53,6 @@ function initialize() {
       }
     }
     map = new google.maps.Map(document.getElementById("map"), mapOptions);
-
-    $("#toggleKeyboard").click(function(e) {
-        $("#phoneticKeyboard").toggle();
-        return false;
-    });
     var form = $("#searchForm");
     var resultsCount = 1;
     form.submit(function (e) {
@@ -92,10 +87,10 @@ function initialize() {
 //                    $(".well").prepend(p)
 //                },
                 success: function(data){
-                   console.log( "Data: " + JSON.stringify(data) );
+                   console.log( "Data: ", data);
                 },
                 error:function (jqXHR, textStatus, errorThrown){
-                   console.log(JSON.stringify(jqXHR) + ' ' + textStatus +'  '+errorThrown );
+                   console.log(JSON.stringify(jqXHR) +' '+ textStatus +'  '+ errorThrown );
                 }
             });
             

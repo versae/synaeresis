@@ -7,6 +7,8 @@ import re
 
 from django.db.models.query import QuerySet
 from django.core.serializers import serialize
+from django.utils.functional import Promise
+from django.utils.encoding import force_unicode
 from django.utils.simplejson import dumps, loads, JSONEncoder
 
 
@@ -78,6 +80,8 @@ def json_encode(data, ensure_ascii=False):
             ret = data.strftime(TIME_FORMAT)
         elif isinstance(data, QuerySet):
             ret = loads(serialize('json', data))
+        elif isinstance(data, Promise):
+            ret = force_unicode(data)
         else:
             ret = data
         return ret
