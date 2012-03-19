@@ -23,6 +23,9 @@ onload="initialize()"
 <span class="search-options">
 {% for field in search_options_form %}
         <h3 class="inline">{{ field.label }}</h3>
+        <span class="hidden">
+        {{ field.label_tag }}
+        </span>
         {{ field.errors }}
         {{ field }}
 {% endfor %}

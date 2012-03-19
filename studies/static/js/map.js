@@ -26,8 +26,8 @@ function initialize() {
     var oldDirections = [];
     var currentDirections = null;
     var mapOptions = {
-      zoom: 12,
-      center: new google.maps.LatLng(-28.643387, 153.612224),
+      zoom: 3,
+      center: new google.maps.LatLng(30.751873645557307, -40.417622248316455),
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       mapTypeControl: true,
       mapTypeControlOptions: {
@@ -53,11 +53,6 @@ function initialize() {
       }
     }
     map = new google.maps.Map(document.getElementById("map"), mapOptions);
-
-    $("#toggleKeyboard").click(function(e) {
-        $("#phoneticKeyboard").toggle();
-        return false;
-    });
     var form = $("#searchForm");
     var resultsCount = 1;
     form.submit(function (e) {
@@ -70,7 +65,32 @@ function initialize() {
             study: $("#id_study").val().trim(),
             id: resultsCount
         };
+        label = function(item) {
+            var output = "";
+            output += $("label[for='id_"+ item +"']").text();
+            output += " ";
+            output += $("#id_"+ item).find("option[value='"+ data[item] +"']").text();
+            return output;
+        }
         resultsCount += 1;
+        var text = label("match") +" "+  label("where") +" "+ label("study");
+        $(".well").show();
+        var p = $("<P>");
+        var spanText = $("<SPAN>");
+        spanText.text(text);
+        var spanQ = $("<SPAN>");
+        spanQ.text(data.q);
+        var spanResults = $("<SPAN>");
+        spanResults.text("Loading...");
+        spanResults.attr("id", "results-"+ resultsCount +"-results")
+        var pId = "results-"+ resultsCount;
+        p.attr("id", pId);
+        p.attr("class", "color-"+ resultsCount);
+        p.text(pId);
+        p.append(spanQ);
+        p.append(spanResults);
+        p.append(spanText);
+        $(".well").prepend(p);
         if (data.q != "") {
             $.ajax({
                 url: "/map/",
@@ -80,22 +100,13 @@ function initialize() {
                 contentType: " application/x-www-form-urlencoded",
                 mimeType: "application/json",
                 data: data,
-//                success: function(result) {
-//                    console.log(result);
-//                    $(".well").show();
-//                    var p = $("<P>");
-//                    var pId = "results-"+ resultsCount;
-//                    data["id"] = pId;
-//                    p.attr("id", pId)
-//                    p.attr("class", "color-"+ resultsCount);
-//                    p.text(pId +":"+ values);
-//                    $(".well").prepend(p)
-//                },
                 success: function(data){
-                   console.log( "Data: " + JSON.stringify(data) );
+                    console.log( "Data: ", data);
+                    var result = $("#results-"+ data.id +"-results");
+                    result.text(data.data.length)
                 },
                 error:function (jqXHR, textStatus, errorThrown){
-                   console.log(JSON.stringify(jqXHR) + ' ' + textStatus +'  '+errorThrown );
+                   console.log(JSON.stringify(jqXHR) +' '+ textStatus +'  '+ errorThrown );
                 }
             });
             
