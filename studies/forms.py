@@ -11,6 +11,7 @@ class SearchForm(forms.Form):
         js = (
             "js/n11n.js",
             "js/n11ndata-lite.js",
+            "js/functions11.js",
             "js/ipa.js"
         )
         css = {
@@ -22,7 +23,7 @@ class SearchForm(forms.Form):
 
     q = forms.CharField(label=_("Word to search"), required=False,
                         max_length=100,
-                        widget=forms.TextInput(attrs={'class':'output'}))
+                        widget=forms.TextInput(attrs={'class':'ipakey output'}))
 
     def q_clean(self):
         q = super(SearchForm, self).q_clean()

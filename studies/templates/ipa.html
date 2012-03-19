@@ -1,97 +1,95 @@
 {% load static %}
 {% get_static_prefix as STATIC_PREFIX %}
-<script type="text/javascript">
-{% include "functions11.js" %}
-</script>
+
 <div id="phoneticKeyboard">
 <div id="viewmenu">
-    <button type="button" onclick="viewKeyboards();switchView('alphabet'); return false;">Alphabetic</button>
-    <button type="button" onclick="viewKeyboards();switchView('keyboard'); return false;">Keyboard</button> 
-    <button type="button" onclick="viewKeyboards();switchView('fontgrid'); return false;">Fontgrid</button>
+    <button type="button" onclick="viewKeyboards(this);switchView(this, 'alphabet'); return false;">Alphabetic</button>
+    <button type="button" onclick="viewKeyboards(this);switchView(this, 'keyboard'); return false;">Keyboard</button> 
+    <button type="button" onclick="viewKeyboards(this);switchView(this, 'fontgrid'); return false;">Fontgrid</button>
 <div id="chardata"><span id="charname">Click on characters to create text in the box below, then copy &amp; paste to your content.</span></div>
 </div>
 
 
 <div id="keyboards">
-<!--    <div id="bttns">-->
-<!--        <button type="button" onclick="document.getElementById('{{ input_id }}').focus();document.getElementById('{{ input_id }}').select();">Select all</button>-->
-<!--        <button type="button" onclick="deleteAll();">Delete all</button>-->
-<!--        <button type="button" onclick="showcodepoints(document.getElementById('{{ input_id }}'));">Codepoints</button> -->
-<!--        <button type="button" onclick="showdetail(document.getElementById('{{ input_id }}'));">Analyse</button>-->
-<!--        <button type="button" onclick="converter = window.open('http://people.w3.org/rishida/tools/conversion/?origin=cutpaste&amp;codepoints='+encodeURIComponent(document.getElementById('{{ input_id }}').value), 'converter'); converter.focus();">Escapes</button>-->
-<!--    </div>-->
+    <div id="bttns">
+        <button type="button" onclick="document.getElementById('{{ input_id }}').focus();document.getElementById('{{ input_id }}').select();">Select all</button>
+        <button type="button" onclick="deleteAll();">Delete all</button>
+        <button type="button" onclick="showcodepoints(document.getElementById('{{ input_id }}'));">Codepoints</button> 
+        <button type="button" onclick="showdetail(document.getElementById('{{ input_id }}'));">Analyse</button>
+        <button type="button" onclick="converter = window.open('http://people.w3.org/rishida/tools/conversion/?origin=cutpaste&amp;codepoints='+encodeURIComponent(document.getElementById('{{ input_id }}').value), 'converter'); converter.focus();">Escapes</button>
+    </div>
 
 
-<!--    <div id="controls" class="default"> -->
-<!--        <div class="control">Font list:<br />-->
-<!--            <select id="fontList" name="fontList" onchange="selectFont(this.value); return false;">-->
-<!--                <option value="0">Select...</option>-->
-<!--                <option value="Charis SIL">Charis SIL</option>-->
-<!--                <option value="Doulos SIL">Doulos SIL</option>-->
-<!--                <option value="Gentium">Gentium</option>-->
-<!--                <option value="Berling Antiqua">Berling Antiqua</option>-->
-<!--                <option value="Cardo">Cardo</option>-->
-<!--                <option value="Chrysanthi Unicode">Chrysanthi Unicode</option>-->
-<!--                <option value="DejaVu Sans">DejaVu Sans </option>-->
-<!--                <option value="DejaVu Serif">DejaVu Serif</option>-->
-<!--                <option value="Dialekt Uni">Dialekt Uni</option>-->
-<!--                <option value="Free Serif">Free Serif</option>-->
-<!--                <option value="Frutiger Linotype">Frutiger Linotype</option>-->
-<!--                <option value="Gandhari Unicode">Gandhari Unicode</option>-->
-<!--                <option value="GentiumAlt">GentiumAlt</option>-->
-<!--                <option value="Gentium Plus">Gentium Plus</option>-->
-<!--                <option value="Hindsight Unicode">Hindsight Unicode</option>-->
-<!--                <option value="IPA LS Uni">IPA LS Uni</option>-->
-<!--                <option value="Lucida Sans">Lucida Sans</option>-->
-<!--                <option value="Lucida Sans Unicode">Lucida Sans Unicode</option>-->
-<!--                <option value="Thryomanes">Thryomanes</option>-->
-<!--                <option value="TITUS Cyberbit Basic">TITUS Cyberbit Basic</option>-->
-<!--                <option value="Arial Unicode MS">Arial Unicode MS</option>-->
-<!--                <option value="Code2000">Code2000</option>-->
-<!--                <option value="sans-serif">sans-serif</option>-->
-<!--                <option value="serif">serif</option>-->
-<!--            </select>-->
-<!--        </div>-->
-<!--        <div class="control">Custom font:<br />-->
-<!--            <form action="none"-->
-<!--                onsubmit="customFont(document.getElementById('fontName').value); return false;">-->
-<!--                <input name="fontName" id="fontName" value="Doulos SIL" onclick="this.select();" /> -->
-<!--            </form>-->
-<!--        </div>-->
-<!--        <div class="control">Size:-->
-<!--            <form action="none" onsubmit="changeFontSize(document.getElementById('fontSize').value); return false;">-->
-<!--                    <input name="fontSize" value="35" id="fontSize" size="3" onclick="this.select();" />px-->
-<!--            </form>-->
-<!--        </div>-->
-<!--        <div class="control" title="One row is 100px. Decimals are ok.">Rows:<br />-->
-<!--            <form action="none" onsubmit="document.getElementById( '{{ input_id }}' ).style.height = (document.getElementById( 'rows' ).value*100)+'px';  return false;">-->
-<!--                <input name="rows" value="1.5" id="rows" size="3" onclick="this.select();" />-->
-<!--            </form>-->
-<!--        </div>-->
-<!--        <div class="control">Add codepoint:-->
-<!--            <form action="none" onsubmit="add(convertCP2Char(getElementById('addcode').value)); return false;">-->
-<!--                    <input name="addcode" id="addcode"  type="text" style="width: 90px; text-align:right;" /> -->
-<!--            </form>-->
-<!--        </div>-->
-<!--        <div class="control">Search for:-->
-<!--            <form action="none"-->
-<!--                 onsubmit="searchFor(getElementById('search').value, 'latin'); return false;">-->
-<!--                    <input name="search" id="search"  type="text" /> <img src="{{ STATIC_PREFIX }}img/ipa/clearsearch.png" onclick="searchFor('xxxxxx', 'latin');" style="cursor: pointer; vertical-align:top; margin:0 0px 0 0; border:0; padding:0; height: 15px;" alt="Clear search results." title="Clear search results." />-->
-<!--            </form>-->
-<!--        </div>-->
-<!--        <div class="control" title="Change the normalization of the output.">Normalise: <span id="n11nform">NFC</span><br />-->
-<!--            <img src="{{ STATIC_PREFIX }}img/ipa/nfc.png" alt="Convert output to Normalization Form C."  title="Convert output to Normalization Form C." onclick="_n11n='nfc'; document.getElementById( '{{ input_id }}' ).value=nfc(document.getElementById( '{{ input_id }}' ).value); document.getElementById('n11nform').innerHTML = 'NFC';"/>-->
-<!--            <img src="{{ STATIC_PREFIX }}img/ipa/nfd.png" alt="Convert output to Normalization Form D."  title="Convert output to Normalization Form D."  onclick="_n11n='nfd'; document.getElementById( '{{ input_id }}' ).value=nfd(document.getElementById( '{{ input_id }}' ).value); document.getElementById('n11nform').innerHTML = 'NFD';"/>-->
-<!--            <img src="{{ STATIC_PREFIX }}img/ipa/nfx.png" alt="Don't normalise output."  title="Don't normalise output."  -->
-<!--                    onclick="_n11n='none'; document.getElementById('n11nform').innerHTML = 'None';"/>-->
-<!--        </div>-->
-<!--        <div class="control" title="Change the normalization of the output.">Autofocus: <span id="focusindicator">On</span><br />-->
-<!--            <img src="{{ STATIC_PREFIX }}img/ipa/yfx.png" alt="Turn autofocus on."  title="Turn autofocus on." -->
-<!--                    onclick="_refocus=true; document.getElementById('focusindicator').innerHTML = 'On'; document.getElementById( '{{ input_id }}' ).focus();"/>-->
-<!--            <img src="{{ STATIC_PREFIX }}img/ipa/nfx.png" alt="Turn autofocus off."  title="Turn autofocus off."  -->
-<!--                    onclick="_refocus=false; document.getElementById('focusindicator').innerHTML = 'Off';"/>-->
-<!--        </div>-->
-<!--    </div>-->
+    <div id="controls" class="default"> 
+        <div class="control">Font list:<br />
+            <select id="fontList" name="fontList" onchange="selectFont(this.value); return false;">
+                <option value="0">Select...</option>
+                <option value="Charis SIL">Charis SIL</option>
+                <option value="Doulos SIL">Doulos SIL</option>
+                <option value="Gentium">Gentium</option>
+                <option value="Berling Antiqua">Berling Antiqua</option>
+                <option value="Cardo">Cardo</option>
+                <option value="Chrysanthi Unicode">Chrysanthi Unicode</option>
+                <option value="DejaVu Sans">DejaVu Sans </option>
+                <option value="DejaVu Serif">DejaVu Serif</option>
+                <option value="Dialekt Uni">Dialekt Uni</option>
+                <option value="Free Serif">Free Serif</option>
+                <option value="Frutiger Linotype">Frutiger Linotype</option>
+                <option value="Gandhari Unicode">Gandhari Unicode</option>
+                <option value="GentiumAlt">GentiumAlt</option>
+                <option value="Gentium Plus">Gentium Plus</option>
+                <option value="Hindsight Unicode">Hindsight Unicode</option>
+                <option value="IPA LS Uni">IPA LS Uni</option>
+                <option value="Lucida Sans">Lucida Sans</option>
+                <option value="Lucida Sans Unicode">Lucida Sans Unicode</option>
+                <option value="Thryomanes">Thryomanes</option>
+                <option value="TITUS Cyberbit Basic">TITUS Cyberbit Basic</option>
+                <option value="Arial Unicode MS">Arial Unicode MS</option>
+                <option value="Code2000">Code2000</option>
+                <option value="sans-serif">sans-serif</option>
+                <option value="serif">serif</option>
+            </select>
+        </div>
+        <div class="control">Custom font:<br />
+            <form action="none"
+                onsubmit="customFont(document.getElementById('fontName').value); return false;">
+                <input name="fontName" id="fontName" value="Doulos SIL" onclick="this.select();" /> 
+            </form>
+        </div>
+        <div class="control">Size:
+            <form action="none" onsubmit="changeFontSize(document.getElementById('fontSize').value); return false;">
+                    <input name="fontSize" value="35" id="fontSize" size="3" onclick="this.select();" />px
+            </form>
+        </div>
+        <div class="control" title="One row is 100px. Decimals are ok.">Rows:<br />
+            <form action="none" onsubmit="document.getElementById( '{{ input_id }}' ).style.height = (document.getElementById( 'rows' ).value*100)+'px';  return false;">
+                <input name="rows" value="1.5" id="rows" size="3" onclick="this.select();" />
+            </form>
+        </div>
+        <div class="control">Add codepoint:
+            <form action="none" onsubmit="add(convertCP2Char(getElementById('addcode').value)); return false;">
+                    <input name="addcode" id="addcode"  type="text" style="width: 90px; text-align:right;" /> 
+            </form>
+        </div>
+        <div class="control">Search for:
+            <form action="none"
+                 onsubmit="searchFor(getElementById('search').value, 'latin'); return false;">
+                    <input name="search" id="search"  type="text" /> <img src="{{ STATIC_PREFIX }}img/ipa/clearsearch.png" onclick="searchFor('xxxxxx', 'latin');" style="cursor: pointer; vertical-align:top; margin:0 0px 0 0; border:0; padding:0; height: 15px;" alt="Clear search results." title="Clear search results." />
+            </form>
+        </div>
+        <div class="control" title="Change the normalization of the output.">Normalise: <span id="n11nform">NFC</span><br />
+            <img src="{{ STATIC_PREFIX }}img/ipa/nfc.png" alt="Convert output to Normalization Form C."  title="Convert output to Normalization Form C." onclick="_n11n='nfc'; document.getElementById( '{{ input_id }}' ).value=nfc(document.getElementById( '{{ input_id }}' ).value); document.getElementById('n11nform').innerHTML = 'NFC';"/>
+            <img src="{{ STATIC_PREFIX }}img/ipa/nfd.png" alt="Convert output to Normalization Form D."  title="Convert output to Normalization Form D."  onclick="_n11n='nfd'; document.getElementById( '{{ input_id }}' ).value=nfd(document.getElementById( '{{ input_id }}' ).value); document.getElementById('n11nform').innerHTML = 'NFD';"/>
+            <img src="{{ STATIC_PREFIX }}img/ipa/nfx.png" alt="Don't normalise output."  title="Don't normalise output."  
+                    onclick="_n11n='none'; document.getElementById('n11nform').innerHTML = 'None';"/>
+        </div>
+        <div class="control" title="Change the normalization of the output.">Autofocus: <span id="focusindicator">On</span><br />
+            <img src="{{ STATIC_PREFIX }}img/ipa/yfx.png" alt="Turn autofocus on."  title="Turn autofocus on." 
+                    onclick="_refocus=true; document.getElementById('focusindicator').innerHTML = 'On'; document.getElementById( '{{ input_id }}' ).focus();"/>
+            <img src="{{ STATIC_PREFIX }}img/ipa/nfx.png" alt="Turn autofocus off."  title="Turn autofocus off."  
+                    onclick="_refocus=false; document.getElementById('focusindicator').innerHTML = 'Off';"/>
+        </div>
+    </div>
 
 
 <div id="tables">

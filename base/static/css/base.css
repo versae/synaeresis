@@ -82,11 +82,11 @@ input#search-submit {
 .search-options {
     float: right;
     position: absolute;
-    padding: 4px 30px 4px 4px;
+    padding: 4px 0px 4px 4px;
     right: 0px;
-    margin-right: 10px;
+    margin-right: 0;
     left: 300px;
-    width: 580px;
+    width: 560px;
 }
 
 .search-options h3 {
