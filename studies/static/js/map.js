@@ -28,24 +28,24 @@ function initialize() {
     var mapOptions = {
       zoom: 3,
       center: new google.maps.LatLng(30.751873645557307, -40.417622248316455),
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      mapTypeId: google.maps.MapTypeId.TERRAIN,
       mapTypeControl: true,
       mapTypeControlOptions: {
           style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
           position: google.maps.ControlPosition.RIGHT_BOTTOM
       },
-      panControl: false,
+      panControl: true,
       panControlOptions: {
-          position: google.maps.ControlPosition.TOP_RIGHT
-      },
-      zoomControl: false,
-      zoomControlOptions: {
-          style: google.maps.ZoomControlStyle.LARGE,
           position: google.maps.ControlPosition.LEFT_CENTER
       },
-      scaleControl: false,
+      zoomControl: true,
+      zoomControlOptions: {
+          style: google.maps.ZoomControlStyle.SMALL,
+          position: google.maps.ControlPosition.LEFT_CENTER
+      },
+      scaleControl: true,
       scaleControlOptions: {
-          position: google.maps.ControlPosition.TOP_LEFT
+          position: google.maps.ControlPosition.LEFT_BOTTOM
       },
       streetViewControl: false,
       streetViewControlOptions: {
@@ -55,9 +55,9 @@ function initialize() {
     map = new google.maps.Map(document.getElementById("map"), mapOptions);
     var form = $("#searchForm");
     var resultsCount = 1;
+    var sets = {};
     form.submit(function (e) {
-        var self = $(this);
-        var values = decodeURIComponent(self.serialize());
+        var values = decodeURIComponent($(this).serialize());
         var data = {
             q: $("#id_q").val().trim(),
             match: $("#id_match").val().trim(),
@@ -72,44 +72,58 @@ function initialize() {
             output += $("#id_"+ item).find("option[value='"+ data[item] +"']").text();
             return output;
         }
-        resultsCount += 1;
         var text = label("match") +" "+  label("where") +" "+ label("study");
         $(".well").show();
-        var p = $("<P>");
+        var anchor = $("<a>");
+        var spanSquare = $("<SPAN>");
+        spanSquare.addClass("resultSquare").addClass("bgolor-"+ resultsCount);
         var spanText = $("<SPAN>");
         spanText.text(text);
+        spanText.addClass("resultText");
         var spanQ = $("<SPAN>");
         spanQ.text(data.q);
+        spanQ.addClass("resultQuery");
         var spanResults = $("<SPAN>");
         spanResults.text("Loading...");
         spanResults.attr("id", "results-"+ resultsCount +"-results")
+        spanResults.addClass("resultTotal");
         var pId = "results-"+ resultsCount;
-        p.attr("id", pId);
-        p.attr("class", "color-"+ resultsCount);
-        p.text(pId);
-        p.append(spanQ);
-        p.append(spanResults);
-        p.append(spanText);
-        $(".well").prepend(p);
+        anchor.attr("id", pId);
+        anchor.attr("href", "javascript:void(0);");
+        anchor.addClass("resultRow");
+        anchor.addClass("resultDisabled");
+        anchor.append(spanSquare);
+        anchor.append(spanQ)
+        anchor.append(spanResults);
+        anchor.append(spanText);
+        $(".well").prepend(anchor);
+        resultsCount += 1;
         if (data.q != "") {
             $.ajax({
                 url: "/map/",
                 dataType: "json",
                 processData: true,
                 type: "GET",
-                contentType: " application/x-www-form-urlencoded",
-                mimeType: "application/json",
                 data: data,
-                success: function(data){
-                    console.log( "Data: ", data);
+                success: function(data, textStatus, jqXHR) {
+                    console.log( "Data: ", data, "#results-"+ data.id +"-results");
+                    $("#results-"+ data.id).click(function() {
+                        var self = $(this);
+                        console.log(self)
+                        if (self.hasClass("resultDisabled")) {
+                            self.removeClass("resultDisabled");
+                        } else {
+                            self.addClass("resultDisabled");
+                        }
+                    });
+                    $("#results-"+ data.id).removeClass("resultDisabled");
                     var result = $("#results-"+ data.id +"-results");
-                    result.text(data.data.length)
+                    result.text("("+ data.places.length +" places, "+ data.total +" productions)")
                 },
-                error:function (jqXHR, textStatus, errorThrown){
+                error: function(jqXHR, textStatus, errorThrown) {
                    console.log(JSON.stringify(jqXHR) +' '+ textStatus +'  '+ errorThrown );
                 }
             });
-            
         }
         return false;
     });

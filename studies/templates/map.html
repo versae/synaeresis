@@ -4,6 +4,7 @@
 {% block extra_scripts %}
 {{ block.super }}
 <script type="text/javascript" src="http://www.google.com/jsapi?key={{ GOOGLE_API_KEY }}"></script>
+<script type="text/javascript" src="{{ STATIC_PREFIX }}js/colors.js"></script>
 <script type="text/javascript" src="{{ STATIC_PREFIX }}js/map.js"></script>
 {{ search_form.media }}
 {% endblock %}

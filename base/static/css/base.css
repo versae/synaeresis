@@ -48,21 +48,12 @@ input[type="text"]:focus {
 }
 
 input[type="text"] {
-font-family: 'IM Fell DW Pica', serif;
-font-size: 1.25em;
-height: 16px;
-width: 80%;
-margin-top: 0px;
-margin-bottom: 3px;
-/*    font-family: 'IM Fell DW Pica', serif;*/
-/*/*    font-size: 1.25em;*/*/
-/*/*    height: 30px;*/*/
-/*/*    width: 100%;*/*/
-/*    font-size: 1.25em;*/
-/*    height: 16px;*/
-/*    width: 100%;*/
-/*    margin-top: 8px;*/
-/*    margin-bottom: 0px;*/
+    font-family: 'IM Fell DW Pica', serif;
+    font-size: 1.25em;
+    height: 16px;
+    width: 80%;
+    margin-top: 0px;
+    margin-bottom: 3px;
 }
 
 input#search-submit {
@@ -173,6 +164,39 @@ label {
     height: 400px;
     display: none;
     overflow: auto;
+}
+
+.resultSquare {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border: 1px whiteSmoke dotted;
+}
+
+.resultQuery {
+    padding: 10px;
+    font-weight: bold;
+    font-size: 1.25em;
+}
+
+.resultTotal {
+    font-style: italic;
+    color: gray;
+}
+
+.resultText {
+    display: block;
+    color: gray;
+}
+
+.resultRow {
+    margin-bottom: 10px;
+    display: block;
+}
+
+.resultDisabled {
+    text-decoration: line-through;
+    color: grey;
 }
 
 #phoneticKeyboard {

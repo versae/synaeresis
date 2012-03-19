@@ -43,13 +43,18 @@ def mapper(request):
                 annotated_entries = references.distinct().annotate(
                     num_productions=Count('productions')
                 )
-                entries = [dict(e) for e in annotated_entries.values()]
+                total_productions = 0
+                for e in annotated_entries.values():
+                    entry = dict(e)
+                    entries.append(entry)
+                    total_productions += entry["num_productions"]
                 result = {
-                    "id": data["id"]
+                    "id": data["id"],
+                    "total": total_productions,
                 }
                 if entries:
                     result.update({
-                        "data": entries
+                        "places": entries
                     })
                 return HttpResponse(json_encode(result),
                                     status=200, mimetype='application/json')
