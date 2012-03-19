@@ -3,6 +3,7 @@ import types
 from json import dumps
 from urllib import urlencode
 
+from django.core import serializers
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.db import connection, DatabaseError
 from django.http import HttpResponse
@@ -10,6 +11,7 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 
 from base.models import GeospatialReference
+from base.utils import json_encode
 from studies.forms import SearchForm, SearchOptionsForm
 from studies.models import Production
 
@@ -32,13 +34,21 @@ def mapper(request):
                 key = "productions__%s__%s" % (to_search,
                                               options.get("match") or "iexact")
                 params = {key: q}
+                if data["study"]:
+                    params.update({
+                        "productions__speaker__studies__id": data["study"],
+                    })
                 references = GeospatialReference.objects.filter(**params)
-                entries = references.distinct().values("address")
+                entries = references.distinct()
                 result = {
-                    "id": data["id"],
-                    "data": entries,
+                    "id": data["id"]
                 }
-                return HttpResponse(result, mimetype='application/json')
+                if entries:
+                    result.update({
+                        "data": entries
+                    })
+                return HttpResponse(json_encode(result), mimetype='application/json',
+                                    status=200)
                 # Grouping by not documented API
                 # entry_list.query.group_by = ['lemma']
                 paginator = Paginator(entry_list, 15)

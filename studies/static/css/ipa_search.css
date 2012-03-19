@@ -7,7 +7,7 @@
 #shapebucket img { display:none; }
 #controls { display: none; }
 #content { float: none; }
-#chardata span { border: 0; padding: 10px 0; }
+#chardata span { border: 0; padding: 10px 0; font-size: 0.85em; }
 #phoneticKeyboard {display: none; }
 #viewmenu {display: inline-block; position: static; margin: 0;  width: 900px}
 #keyboards {display: inline-block;}

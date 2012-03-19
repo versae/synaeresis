@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     # url(r'^studies/', include('studies.urls')),
 
     # map
-    url(r'^map/', "studies.views.mapper", name="map"),
+    url(r'^map/$', "studies.views.mapper", name="map"),
 
     # keyboard
     url(r'^keyboard/(?P<input_id>\w+)$', "studies.views.ipa_keyboard",

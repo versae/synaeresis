@@ -68,27 +68,37 @@ function initialize() {
             match: $("#id_match").val().trim(),
             where: $("#id_where").val().trim(),
             study: $("#id_study").val().trim(),
+            id: resultsCount
         };
+        resultsCount += 1;
         if (data.q != "") {
-            $(".well").show();
-            var p = $("<P>");
-            var pId = "results-"+ resultsCount;
-            data["id"] = pId;
-            p.attr("id", pId)
-            resultsCount += 1;
             $.ajax({
-                url: ".",
-                dataType: 'json',
+                url: "/map/",
+                dataType: "json",
+                processData: true,
+                type: "GET",
+                contentType: " application/x-www-form-urlencoded",
+                mimeType: "application/json",
                 data: data,
-                success: function(result) {
-                    console.log(result);
+//                success: function(result) {
+//                    console.log(result);
+//                    $(".well").show();
+//                    var p = $("<P>");
+//                    var pId = "results-"+ resultsCount;
+//                    data["id"] = pId;
+//                    p.attr("id", pId)
+//                    p.attr("class", "color-"+ resultsCount);
+//                    p.text(pId +":"+ values);
+//                    $(".well").prepend(p)
+//                },
+                success: function(data){
+                   console.log( "Data: " + JSON.stringify(data) );
                 },
-                error: function(result) {
-                    console.log(result);
+                error:function (jqXHR, textStatus, errorThrown){
+                   console.log(JSON.stringify(jqXHR) + ' ' + textStatus +'  '+errorThrown );
                 }
             });
-            p.text(pId +":"+ values);
-            $(".well").prepend(p)
+            
         }
         return false;
     });

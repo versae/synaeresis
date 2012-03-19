@@ -8,6 +8,11 @@
 {{ search_form.media }}
 {% endblock %}
 
+{% block extra_links %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/colors.css" /> 
+{% endblock %}
+
 {% block body_attrs %}
 onload="initialize()"
 {% endblock %}
