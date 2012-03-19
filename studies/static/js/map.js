@@ -65,7 +65,32 @@ function initialize() {
             study: $("#id_study").val().trim(),
             id: resultsCount
         };
+        label = function(item) {
+            var output = "";
+            output += $("label[for='id_"+ item +"']").text();
+            output += " ";
+            output += $("#id_"+ item).find("option[value='"+ data[item] +"']").text();
+            return output;
+        }
         resultsCount += 1;
+        var text = label("match") +" "+  label("where") +" "+ label("study");
+        $(".well").show();
+        var p = $("<P>");
+        var spanText = $("<SPAN>");
+        spanText.text(text);
+        var spanQ = $("<SPAN>");
+        spanQ.text(data.q);
+        var spanResults = $("<SPAN>");
+        spanResults.text("Loading...");
+        spanResults.attr("id", "results-"+ resultsCount +"-results")
+        var pId = "results-"+ resultsCount;
+        p.attr("id", pId);
+        p.attr("class", "color-"+ resultsCount);
+        p.text(pId);
+        p.append(spanQ);
+        p.append(spanResults);
+        p.append(spanText);
+        $(".well").prepend(p);
         if (data.q != "") {
             $.ajax({
                 url: "/map/",
@@ -75,19 +100,10 @@ function initialize() {
                 contentType: " application/x-www-form-urlencoded",
                 mimeType: "application/json",
                 data: data,
-//                success: function(result) {
-//                    console.log(result);
-//                    $(".well").show();
-//                    var p = $("<P>");
-//                    var pId = "results-"+ resultsCount;
-//                    data["id"] = pId;
-//                    p.attr("id", pId)
-//                    p.attr("class", "color-"+ resultsCount);
-//                    p.text(pId +":"+ values);
-//                    $(".well").prepend(p)
-//                },
                 success: function(data){
-                   console.log( "Data: ", data);
+                    console.log( "Data: ", data);
+                    var result = $("#results-"+ data.id +"-results");
+                    result.text(data.data.length)
                 },
                 error:function (jqXHR, textStatus, errorThrown){
                    console.log(JSON.stringify(jqXHR) +' '+ textStatus +'  '+ errorThrown );
