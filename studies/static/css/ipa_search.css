@@ -7,7 +7,7 @@
 #shapebucket img { display:none; }
 #controls { display: none; }
 #content { float: none; }
-#chardata span { border: 0; padding: 10px 0; font-size: 0.85em; }
+#chardata span { border: 0; padding: 5px 0; min-width: 300px;display: inline-block}
 #phoneticKeyboard {display: none; }
 #viewmenu {display: inline-block; position: static; margin: 0;  width: 900px}
 #keyboards {display: inline-block;}
@@ -24,7 +24,7 @@
 #fontgrid { font-size: 24px; width: 800px; display: none; }
 #fontgrid table {height: 600px;}
 #fontgrid td {height: 12%;width: 8%; cursor: pointer; }
-#fontgrid span {line-height: 26px; padding-right: 5px; font-size: 22px}
+#fontgrid span { font-size: 22px; display: inline-block; height: 35px; width: 15px; text-align: center; vertical-align: middle; padding:0}
 .key { 	height: 35px; width: 60px; background-color: white;}
 
 #consonants { border: 2px dotted #005a9c; background-color: white; padding: 6px 0;}
@@ -40,3 +40,5 @@
 
 #output { font-family: "Doulos SIL", sans-serif; font-size: 30px; border:0; height: 40px;}
 #fontgrid { font-family: "Doulos SIL", sans-serif; font-size: 35px; }
+
+a.keyboard{width: 60px; cursor: pointer;}

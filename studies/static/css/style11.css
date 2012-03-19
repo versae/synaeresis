@@ -20,7 +20,7 @@ address {
 	margin-right: 40px;
 	}
 #alphabet { padding-left: 10px; padding-right: 5px; }
-#alphabet img { cursor: pointer; }
+#alphabet img,#keyboard img{ cursor: pointer; }
 button { 
 	border: 0; 
 	font-weight: bold; 

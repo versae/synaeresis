@@ -55,9 +55,9 @@ class ProductionAdminForm(forms.ModelForm):
         model = Production
         widgets = {
            'ipa_transcription': forms.TextInput(attrs={'class':
-                                                       'vTextField output'}),
-#           'rfe_transcription': forms.TextInput(attrs={'class':
-#                                                       'vTextField output'})
+                                                       'vTextField ipakey'}),
+           'rfe_transcription': forms.TextInput(attrs={'class':
+                                                       'vTextField ipakey'})
        }
 
 
@@ -65,9 +65,11 @@ class ProductionAdmin(GuardedModelAdmin):
 
     class Media:
         js = ("admin/js/categories.js", 
-              "js/ipa.js",
               "js/n11n.js",
-              "js/n11ndata-lite.js")
+              "js/functions11.js",
+              "js/n11ndata-lite.js",
+              "js/ipa.js"
+              )
         css = {
                 'all': ('css/style11.css','css/ipa.css'),
               }

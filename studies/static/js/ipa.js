@@ -2,7 +2,7 @@ if ($==undefined){
     $ = django.jQuery;
 }
 $(document).ready(function(){
-    $('.output').each(function (e) {
+    $('.ipakey').each(function (e) {
         var self = $(this);
         $.ajax({url: '/keyboard/',
                 data: {"input_id": self.attr("id")},
@@ -13,11 +13,13 @@ $(document).ready(function(){
                     anchor.attr("class", "keyboard");
                     anchor.text("Keyboard");
                     anchor.click(function(e) {
-                        $("#phoneticKeyboard").toggle();
+                        self.parent().find("#phoneticKeyboard").toggle();
                     });
+                    self.parent().addClass("parent");
                     self.parent().append(anchor);
                     self.parent().append(payload);
-                    initialise();
+                    //debugger;
+                    initialise((self.parent()).get(0));
                 },
                 dataType: 'html',
                 type: 'get',
@@ -26,6 +28,6 @@ $(document).ready(function(){
 });
 function localInitialise(){}
 
-function viewKeyboards(){
-    document.getElementById('keyboards').style.display = 'inline-block';
+function viewKeyboards(_button){
+    $(_button).parents('#phoneticKeyboard').find('#keyboards').get(0).style.display = 'inline-block';
 }
