@@ -45,11 +45,15 @@ def mapper(request):
                     num_productions=Count('productions')
                 )
                 total_productions = 0
-                for e in annotated_entries.values():
-                    entry = dict(e)
-                    entry["point"] = entry["point"].wkt
+                for e in annotated_entries:
+                    entry = {}
+                    entry["point"] = e.point.wkt
+                    entry["geometry"] = e.geometry.wkt
+                    entry["address"] = e.address
+                    entry["title"] = e.title
+                    entry["num_productions"] = e.num_productions
                     entries.append(entry)
-                    total_productions += entry["num_productions"]
+                    total_productions += e.num_productions
                 result = {
                     "id": data["id"],
                     "total": total_productions,
