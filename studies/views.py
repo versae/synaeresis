@@ -3,6 +3,7 @@ import types
 from json import dumps
 from urllib import urlencode
 
+from django.conf import settings
 from django.core import serializers
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.db import connection, DatabaseError
@@ -26,7 +27,7 @@ def mapper(request):
     query_time = 0.0
     start_list = 1
     regexp_error = False
-    if request.is_ajax() and data:
+    if (request.is_ajax() or settings.DEBUG) and data:
         if (search_form.is_valid() and search_options_form.is_valid()):
             q = search_form.cleaned_data["q"]
             options = search_options_form.cleaned_data
