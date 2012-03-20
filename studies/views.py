@@ -46,6 +46,7 @@ def mapper(request):
                 total_productions = 0
                 for e in annotated_entries.values():
                     entry = dict(e)
+                    entry["point"] = entry["point"].wkt
                     entries.append(entry)
                     total_productions += entry["num_productions"]
                 result = {
