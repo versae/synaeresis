@@ -74,7 +74,7 @@ class GeospatialReferenceAdmin(GeoModelAdmin):
     # list_map = ('geometry', )
     options = {
         'layers': [
-            'osm.mapnik', 'osm.osmarender',
+            'osm.mapnik',  # 'osm.osmarender',
 #            've.road', 've.shaded', 've.aerial', 've.hybrid'
 #            'google.physical', 'google.hybrid', 'google.streets',
 #            'google.satellite',
@@ -110,7 +110,7 @@ class GeospatialReferenceAdmin(GeoModelAdmin):
             return u""
         options = {
             'layers': [
-                'osm.mapnik', 'osm.osmarender',
+                'osm.mapnik',  # 'osm.osmarender',
 #                'google.streets'
             ],
             'map_div_Style': {'width': '400px', 'height': '250px'},

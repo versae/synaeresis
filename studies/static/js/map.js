@@ -118,7 +118,10 @@ function initialize() {
                     });
                     $("#results-"+ data.id).removeClass("resultDisabled");
                     var result = $("#results-"+ data.id +"-results");
-                    result.text("("+ data.places.length +" places, "+ data.total +" productions)")
+                    result.text("("+ data.places.length +" places, "+ data.total +" productions)");
+                    for(i=0; i<data.places.length; i++) {
+                    
+                    }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                    console.log(JSON.stringify(jqXHR) +' '+ textStatus +'  '+ errorThrown );
@@ -129,7 +132,66 @@ function initialize() {
     });
 }
 
-
+function getGeometryFromWKT(wkt_point, wkt_geometry, title, color) {
+    multipolygonRegExp = /^MULTIPOLYGON\s*\(\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\)(,\s*\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\))*\)$/;
+    multipolygonMatch = wkt_geometry.match(multipolygonRegExp);
+    polygonRegExp = /^POLYGON\s*\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\)$/;
+    polygonMatch = wkt_geometry.match(polygonRegExp);
+    pointRegExp = /^POINT\s*\(([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1}\)$/;
+    pointMatch = wkt_point.match(pointRegExp);
+    if (multipolygonMatch || polygonMatch) {
+        if (multipolygonMatch) {
+            polygonsList = wkt_geometry.split(/MULTIPOLYGON\s*\(\s*\(\s*\(\s*(.*)\s*\)\s*\)\s*\)/i)[1].split(/\s*\)\s*\)\s*,\s*\(\s*\(\s*/);
+        } else {
+            polygonsList = [polygonMatch[1]];
+        }
+        var polygonsObjects = [];
+        for(var p=0; p<polygonsList.length; p++) {
+            var polygonString = polygonsList[p];
+            var points = [];
+            var wktPoints = polygonString.split(", ");
+            for(var i=0; i<wktPoints.length; i++) {
+                var wktPoint = wktPoints[i].split(" ");
+                var point = new google.maps.LatLng(wktPoint[1], wktPoint[0]);
+                points.push(point);
+            }
+            polygonsObjects[polygonsObjects.length] = new google.maps.Polygon(points, color, 2, undefined, color, 0.25);
+        }
+    }
+    if (pointMatch) {
+        var wktPoint = pointMatch[1].split(" ");
+        var point = new google.maps.LatLng(wktPoint[1], wktPoint[0]);
+        var marker, markerOptions;
+        if (multipolygonMatch || polygonMatch) {
+            markerOptions = {
+//                icon: markerWorld,
+                title: title
+            }
+            marker = new google.maps.Marker(point, markerOptions);
+            google.maps.Event.addListener(marker, "mouseover", function(e) {
+                var parentMarker = this;
+                for(var ig=0; ig<polygonsObjects.length; ig++) {
+                    var polygon = polygonsObjects[ig];
+                    map.addOverlay(polygon);
+                }
+            });
+            google.maps.Event.addListener(marker, "mouseout", function(e) {
+                var parentMarker = this;
+                for(var ig=0; ig<polygonsObjects.length; ig++) {
+                    var polygon = polygonsObjects[ig];
+                    map.removeOverlay(polygon);
+                }
+            });
+        } else {
+            markerOptions = {
+//                icon: markerArtwork,
+                title: title
+            }
+            marker = new google.maps.Marker(point, markerOptions);
+        }
+        return marker;
+    }
+}
 //    var markers = [];
 //    var polygons = [];
 //    var map = new google.maps.Map(document.getElementById('map'));
