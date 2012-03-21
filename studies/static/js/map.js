@@ -13,217 +13,226 @@ function loadLibraries() {
         $.getScript(lib, function(code) {
             counter--;
             if (counter == 0) {
-                initialize();
+                main();
             }
         });
     }
 }
 
+function main() {
+    (function ($) {
+        $(document).ready(initialize);
 
-function initialize() {
-    var directionsDisplay;
-    var map;
-    var oldDirections = [];
-    var currentDirections = null;
-    var mapOptions = {
-      zoom: 3,
-      center: new google.maps.LatLng(30.751873645557307, -40.417622248316455),
-      mapTypeId: google.maps.MapTypeId.TERRAIN,
-      mapTypeControl: true,
-      mapTypeControlOptions: {
-          style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-          position: google.maps.ControlPosition.RIGHT_BOTTOM
-      },
-      panControl: true,
-      panControlOptions: {
-          position: google.maps.ControlPosition.LEFT_CENTER
-      },
-      zoomControl: true,
-      zoomControlOptions: {
-          style: google.maps.ZoomControlStyle.SMALL,
-          position: google.maps.ControlPosition.LEFT_CENTER
-      },
-      scaleControl: true,
-      scaleControlOptions: {
-          position: google.maps.ControlPosition.LEFT_BOTTOM
-      },
-      streetViewControl: false,
-      streetViewControlOptions: {
-          position: google.maps.ControlPosition.LEFT_TOP
-      }
-    }
-    map = new google.maps.Map(document.getElementById("map"), mapOptions);
-    var form = $("#searchForm");
-    var resultsCount = 1;
-    var polygonSet = {};
-    $("#search-submit").click(function(e) {
-        var values = decodeURIComponent(form.serialize());
-        var data = {
-            q: $("#id_q").val().trim(),
-            match: $("#id_match").val().trim(),
-            where: $("#id_where").val().trim(),
-            study: $("#id_study").val().trim(),
-            id: resultsCount
-        };
-        label = function(item) {
-            var output = "";
-            output += $("label[for='id_"+ item +"']").text();
-            output += " ";
-            output += $("#id_"+ item).find("option[value='"+ data[item] +"']").text();
-            return output;
-        }
-        var text = label("match") +" "+  label("where") +" "+ label("study");
-        $(".well").show();
-        var anchor = $("<a>");
-        var spanSquare = $("<SPAN>");
-        spanSquare.addClass("resultSquare").addClass("bgolor-"+ resultsCount);
-        var spanText = $("<SPAN>");
-        spanText.text(text);
-        spanText.addClass("resultText");
-        var spanQ = $("<SPAN>");
-        spanQ.text(data.q);
-        spanQ.addClass("resultQuery");
-        var spanResults = $("<SPAN>");
-        spanResults.text("Loading...");
-        spanResults.attr("id", "results-"+ resultsCount +"-results")
-        spanResults.addClass("resultTotal");
-        var pId = "results-"+ resultsCount;
-        anchor.attr("id", pId);
-        anchor.attr("href", "javascript:void(0);");
-        anchor.addClass("resultRow");
-        anchor.addClass("resultDisabled");
-        anchor.append(spanSquare);
-        anchor.append(spanQ)
-        anchor.append(spanResults);
-        anchor.append(spanText);
-        $(".well").prepend(anchor);
-        resultsCount += 1;
-        if (data.q != "") {
-            $.ajax({
-                url: "/map/",
-                dataType: "json",
-                processData: true,
-                type: "GET",
-                data: data,
-                success: function(data, textStatus, jqXHR) {
-//                    console.log( "Data: ", data, "#results-"+ data.id +"-results");
-                    $("#results-"+ data.id).click(function() {
-                        var self = $(this);
-                        console.log("A VERS", self.hasClass("resultDisabled"))
-                        if (self.hasClass("resultDisabled")) {
-                            for(i=0; i<polygonSet[data.id].length; i++) {
-                                polygonSet[data.id][i].setMap(map);
-                            }
-                            self.removeClass("resultDisabled");
-                        } else {
-                            for(i=0; i<polygonSet[data.id].length; i++) {
-                                polygonSet[data.id][i].setMap(null);
-                            }
-                            self.addClass("resultDisabled");
-                        }
-                        return false;
-                    });
-                    $("#results-"+ data.id).removeClass("resultDisabled");
-                    var result = $("#results-"+ data.id +"-results");
-                    if (data.places) {
-                        result.text("("+ data.places.length +" places, "+ data.total +" productions)");
-                        for(i=0; i<data.places.length; i++) {
-                            var place = data.places[i];
-                            var polygons = getGeometryFromWKT(place.point, place.geometry, place.title, colors[data.id]);
-                            polygonSet[data.id] = polygons;
-                        }
-                    } else {
-                        result.text("(No places, no productions)");
-                    }
-                    return false;
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                   console.log(JSON.stringify(jqXHR) +' '+ textStatus +'  '+ errorThrown );
-                   return false;
+        function initialize() {
+            var directionsDisplay;
+            var map;
+            var oldDirections = [];
+            var currentDirections = null;
+            var mapOptions = {
+              zoom: 3,
+              center: new google.maps.LatLng(30.751873645557307, -40.417622248316455),
+              mapTypeId: google.maps.MapTypeId.TERRAIN,
+              mapTypeControl: true,
+              mapTypeControlOptions: {
+                  style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                  position: google.maps.ControlPosition.RIGHT_BOTTOM
+              },
+              panControl: true,
+              panControlOptions: {
+                  position: google.maps.ControlPosition.LEFT_CENTER
+              },
+              zoomControl: true,
+              zoomControlOptions: {
+                  style: google.maps.ZoomControlStyle.SMALL,
+                  position: google.maps.ControlPosition.LEFT_CENTER
+              },
+              scaleControl: true,
+              scaleControlOptions: {
+                  position: google.maps.ControlPosition.LEFT_BOTTOM
+              },
+              streetViewControl: false,
+              streetViewControlOptions: {
+                  position: google.maps.ControlPosition.LEFT_TOP
+              }
+            }
+            map = new google.maps.Map(document.getElementById("map"), mapOptions);
+            var form = $("#searchForm");
+            var resultsCount = 1;
+            var polygonSet = {};
+            var recentSearches = [];
+            $("#searchForm").submit(function(e) {
+                var key, values = decodeURIComponent(form.serialize());
+                var data = {
+                    q: $("#id_q").val().trim(),
+                    match: $("#id_match").val().trim(),
+                    where: $("#id_where").val().trim(),
+                    study: $("#id_study").val().trim(),
+                    id: resultsCount
+                };
+                label = function(item) {
+                    var output = "";
+                    output += $("label[for='id_"+ item +"']").text();
+                    output += " ";
+                    output += $("#id_"+ item).find("option[value='"+ data[item] +"']").text();
+                    return output;
                 }
+                var text = label("match") +" "+  label("where") +" "+ label("study");
+                $(".well").show();
+                var anchor = $("<a>");
+                var spanSquare = $("<SPAN>");
+                spanSquare.addClass("resultSquare").addClass("bgolor-"+ resultsCount);
+                var spanText = $("<SPAN>");
+                spanText.text(text);
+                spanText.addClass("resultText");
+                var spanQ = $("<SPAN>");
+                spanQ.text(data.q);
+                spanQ.addClass("resultQuery");
+                var spanResults = $("<SPAN>");
+                spanResults.text("Loading...");
+                spanResults.attr("id", "results-"+ resultsCount +"-results")
+                spanResults.addClass("resultTotal");
+                var pId = "results-"+ resultsCount;
+                anchor.attr("id", pId);
+                anchor.attr("href", "javascript:void(0);");
+                anchor.addClass("resultRow");
+                anchor.addClass("resultDisabled");
+                anchor.append(spanSquare);
+                anchor.append(spanQ)
+                anchor.append(spanResults);
+                anchor.append(spanText);
+                resultsCount += 1;
+                key = data.q + data.match + data.where + data.study;
+                if ((data.q != "") && (recentSearches.indexOf(key) < 0)) {
+                    recentSearches.push(key);
+                    $(".well").prepend(anchor);
+                    $.ajax({
+                        url: "/map/",
+                        dataType: "json",
+                        processData: true,
+                        type: "GET",
+                        data: data,
+                        success: function(data, textStatus, jqXHR) {
+                            $("#results-"+ data.id).click(function() {
+                                var self = $(this);
+                                console.log("A VERS", self.hasClass("resultDisabled"))
+                                if (self.hasClass("resultDisabled")) {
+                                    for(i=0; i<polygonSet[data.id].length; i++) {
+                                        polygonSet[data.id][i].setMap(map);
+                                    }
+                                    self.removeClass("resultDisabled");
+                                } else {
+                                    for(i=0; i<polygonSet[data.id].length; i++) {
+                                        polygonSet[data.id][i].setMap(null);
+                                    }
+                                    self.addClass("resultDisabled");
+                                }
+                            });
+                            var result = $("#results-"+ data.id +"-results");
+                            if (data.places) {
+                                result.text("("+ data.places.length +" places, "+ data.total +" productions)");
+                                for(i=0; i<data.places.length; i++) {
+                                    var place = data.places[i];
+                                    var polygons = getGeometryFromWKT(place.point, place.geometry, place.title, colors[data.id]);
+                                    polygonSet[data.id] = polygons;
+                                }
+                            } else {
+                                result.text("(No places, no productions)");
+                            }
+                            $("#results-"+ data.id).click();
+                            $("#toggleResults").css("display", "block");
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                           console.log(JSON.stringify(jqXHR) +' '+ textStatus +'  '+ errorThrown );
+                        }
+                    });
+                }
+                return false;
+            });
+
+            function getGeometryFromWKT(wkt_point, wkt_geometry, title, color) {
+                multipolygonRegExp = /^MULTIPOLYGON\s*\(\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\)(,\s*\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\))*\)$/;
+                multipolygonMatch = wkt_geometry.match(multipolygonRegExp);
+                polygonRegExp = /^POLYGON\s*\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\)$/;
+                polygonMatch = wkt_geometry.match(polygonRegExp);
+                pointRegExp = /^POINT\s*\(([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1}\)$/;
+                pointMatch = wkt_point.match(pointRegExp);
+                if (multipolygonMatch || polygonMatch) {
+                    if (multipolygonMatch) {
+                        polygonsList = wkt_geometry.split(/MULTIPOLYGON\s*\(\s*\(\s*\(\s*(.*)\s*\)\s*\)\s*\)/i)[1].split(/\s*\)\s*\)\s*,\s*\(\s*\(\s*/);
+                    } else {
+                        polygonsList = [polygonMatch[1]];
+                    }
+                    var polygonsObjects = [];
+                    for(var p=0; p<polygonsList.length; p++) {
+                        var polygonString = polygonsList[p];
+                        var points = [];
+                        var wktPoints = polygonString.split(", ");
+                        for(var i=0; i<wktPoints.length; i++) {
+                            var wktPoint = wktPoints[i].split(" ");
+                            var point = new google.maps.LatLng(wktPoint[1], wktPoint[0]);
+                            points.push(point);
+                        }
+                        var polygonsObject = new google.maps.Polygon({
+                            paths: points,
+                            strokeColor: color,
+                            strokeOpacity: 0.8,
+                            strokeWeight: 2,
+                            fillColor: color,
+                            fillOpacity: 0.25
+                        });
+                        polygonsObjects[polygonsObjects.length] = polygonsObject
+                    }
+                }
+                return polygonsObjects;
+                if (pointMatch) {
+                    var wktPoint = pointMatch[1].split(" ");
+                    var point = new google.maps.LatLng(wktPoint[1], wktPoint[0]);
+                    var marker, markerOptions;
+                    if (multipolygonMatch || polygonMatch) {
+                        markerOptions = {
+            //                icon: markerWorld,
+                            title: title,
+                            position: point,
+                            map: map
+                        }
+                        marker = new google.maps.Marker(markerOptions);
+                        google.maps.event.addListener(marker, "mouseover", function(e) {
+                            var parentMarker = this;
+                            for(var ig=0; ig<polygonsObjects.length; ig++) {
+                                var polygon = polygonsObjects[ig];
+                                polygon.setMap(map);
+                                // map.addOverlay(polygon);
+                            }
+                        });
+                        google.maps.event.addListener(marker, "mouseout", function(e) {
+                            var parentMarker = this;
+                            for(var ig=0; ig<polygonsObjects.length; ig++) {
+                                var polygon = polygonsObjects[ig];
+                                polygon.setMap(null);
+                                //map.removeOverlay(polygon);
+                            }
+                        });
+                    } else {
+                        markerOptions = {
+            //                icon: markerArtwork,
+                            title: title,
+                            position: point,
+                            map: map
+                        }
+                        marker = new google.maps.Marker(markerOptions);
+                    }
+                    return marker;
+                }
+            }
+
+            $("#toggleResults").click(function(e) {
+                $(".well").toggle();
             });
         }
-        return false;
-    });
-    return false;
-
-    function getGeometryFromWKT(wkt_point, wkt_geometry, title, color) {
-        multipolygonRegExp = /^MULTIPOLYGON\s*\(\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\)(,\s*\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\))*\)$/;
-        multipolygonMatch = wkt_geometry.match(multipolygonRegExp);
-        polygonRegExp = /^POLYGON\s*\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\)$/;
-        polygonMatch = wkt_geometry.match(polygonRegExp);
-        pointRegExp = /^POINT\s*\(([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1}\)$/;
-        pointMatch = wkt_point.match(pointRegExp);
-        if (multipolygonMatch || polygonMatch) {
-            if (multipolygonMatch) {
-                polygonsList = wkt_geometry.split(/MULTIPOLYGON\s*\(\s*\(\s*\(\s*(.*)\s*\)\s*\)\s*\)/i)[1].split(/\s*\)\s*\)\s*,\s*\(\s*\(\s*/);
-            } else {
-                polygonsList = [polygonMatch[1]];
-            }
-            var polygonsObjects = [];
-            for(var p=0; p<polygonsList.length; p++) {
-                var polygonString = polygonsList[p];
-                var points = [];
-                var wktPoints = polygonString.split(", ");
-                for(var i=0; i<wktPoints.length; i++) {
-                    var wktPoint = wktPoints[i].split(" ");
-                    var point = new google.maps.LatLng(wktPoint[1], wktPoint[0]);
-                    points.push(point);
-                }
-                var polygonsObject = new google.maps.Polygon({
-                    paths: points,
-                    strokeColor: color,
-                    strokeOpacity: 0.8,
-                    strokeWeight: 2,
-                    fillColor: color,
-                    fillOpacity: 0.25
-                });
-                polygonsObjects[polygonsObjects.length] = polygonsObject
-            }
-        }
-        return polygonsObjects;
-        if (pointMatch) {
-            var wktPoint = pointMatch[1].split(" ");
-            var point = new google.maps.LatLng(wktPoint[1], wktPoint[0]);
-            var marker, markerOptions;
-            if (multipolygonMatch || polygonMatch) {
-                markerOptions = {
-    //                icon: markerWorld,
-                    title: title,
-                    position: point,
-                    map: map
-                }
-                marker = new google.maps.Marker(markerOptions);
-                google.maps.event.addListener(marker, "mouseover", function(e) {
-                    var parentMarker = this;
-                    for(var ig=0; ig<polygonsObjects.length; ig++) {
-                        var polygon = polygonsObjects[ig];
-                        polygon.setMap(map);
-                        // map.addOverlay(polygon);
-                    }
-                });
-                google.maps.event.addListener(marker, "mouseout", function(e) {
-                    var parentMarker = this;
-                    for(var ig=0; ig<polygonsObjects.length; ig++) {
-                        var polygon = polygonsObjects[ig];
-                        polygon.setMap(null);
-                        //map.removeOverlay(polygon);
-                    }
-                });
-            } else {
-                markerOptions = {
-    //                icon: markerArtwork,
-                    title: title,
-                    position: point,
-                    map: map
-                }
-                marker = new google.maps.Marker(markerOptions);
-            }
-            return marker;
-        }
-    }
-
+    })(jQuery);
 }
+
+
 
 //    var markers = [];
 //    var polygons = [];

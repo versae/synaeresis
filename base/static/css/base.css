@@ -93,14 +93,22 @@ input#search-submit {
     margin-left: 10px;
 }
 
+.nav > li > a.resultLi {
+    color: white;
+    padding-top: 11px;
+    background: url(../img/push-pin.png) no-repeat left 3px;
+    padding-left: 30px;
+    display: none;
+}
+
 .keyboard {
-background: url('../img/keys/keyboard.png') no-repeat 0px 0;
-display: inline-block;
-width: 20px;
-padding: 7px 7px 7px 35px;
-margin-left: 5px;
-height: 25px;
-margin-top: 4px;
+    background: url('../img/keys/keyboard.png') no-repeat 0px 0;
+    display: inline-block;
+    width: 20px;
+    padding: 7px 7px 7px 35px;
+    margin-left: 5px;
+    height: 25px;
+    margin-top: 4px;
 /*    background: url('../img/keys/keyboard.png') no-repeat 0px 0;*/
 /*    display: inline-block;*/
 /*    width: 20px;*/
@@ -161,7 +169,7 @@ label {
     right: 0;
     position: absolute;
     top: 38px;
-    height: 400px;
+    max-height: 400px;
     display: none;
     overflow: auto;
 }

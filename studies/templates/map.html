@@ -14,10 +14,6 @@
 <link rel="stylesheet" type="text/css" href="{{ STATIC_PREFIX }}css/colors.css" /> 
 {% endblock %}
 
-{% block body_attrs %}
-onload="initialize()"
-{% endblock %}
-
 {% block navbar %}
 <li>
 <form id="searchForm">
@@ -30,13 +26,18 @@ onload="initialize()"
         {{ field.errors }}
         {{ field }}
 {% endfor %}
-<input type="button" title="{% trans "Search" %}" id="search-submit" value="" />
+<input type="submit" title="{% trans "Search" %}" id="search-submit" value="" />
 <!--<a href="#" id="toggleKeyboard" class="keyboard">{% trans "Keyboard" %}</a>-->
 </span>
 <span class="main-search">
 {{ search_form.as_p }}
 </span>
 </form>
+</li>
+<li>
+    <a href="javascript:void(0);" class="resultLi" id="toggleResults">
+    {% trans "Results" %}
+    </a>
 </li>
 {% endblock %}
 
