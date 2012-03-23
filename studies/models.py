@@ -112,7 +112,7 @@ class Language(models.Model):
     ACQUISITION_TYPES = (
         ("I", _("Instructed")),
         ("N", _("Naturalistic")),
-        ("B", _("Both)")),
+        ("B", _("Both")),
     )
     acquisition = models.CharField(_("Acquisition"), max_length=2,
                                    choices=ACQUISITION_TYPES,

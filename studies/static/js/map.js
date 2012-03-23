@@ -114,7 +114,6 @@ function main() {
                         success: function(data, textStatus, jqXHR) {
                             $("#results-"+ data.id).click(function() {
                                 var self = $(this);
-                                console.log("A VERS", self.hasClass("resultDisabled"))
                                 if (self.hasClass("resultDisabled")) {
                                     for(i=0; i<polygonSet[data.id].length; i++) {
                                         polygonSet[data.id][i].setMap(map);
@@ -130,16 +129,20 @@ function main() {
                             var result = $("#results-"+ data.id +"-results");
                             if (data.places) {
                                 result.text("("+ data.places.length +" places, "+ data.total +" productions)");
+                                if (!polygonSet[data.id]) {
+                                    polygonSet[data.id] = [];
+                                }
                                 for(i=0; i<data.places.length; i++) {
                                     var place = data.places[i];
                                     var polygons = getGeometryFromWKT(place.point, place.geometry, place.title, colors[data.id]);
-                                    polygonSet[data.id] = polygons;
+                                    console.log(data.id)
+                                    polygonSet[data.id] = polygonSet[data.id].concat(polygons);
                                 }
                             } else {
                                 result.text("(No places, no productions)");
                             }
                             $("#results-"+ data.id).click();
-                            $("#toggleResults").css("display", "block");
+                            $("#toggleResults").css("display", "inline");
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
                            console.log(JSON.stringify(jqXHR) +' '+ textStatus +'  '+ errorThrown );

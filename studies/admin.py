@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.contrib import admin
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 from guardian.admin import GuardedModelAdmin
 
 from base.admin import BaseAdmin
 from studies.models import Production, Language
-
-
-class StudyAdmin(BaseAdmin):
-    pass
 
 
 class LanguageAdmin(admin.TabularInline):
@@ -23,6 +21,9 @@ class LanguageAdmin(admin.TabularInline):
 
 
 class SpeakerAdmin(BaseAdmin):
+    search_fields = ('code', 'location__title', 'location__address',
+                     'studies__title')
+    list_display = ('code', 'sex', 'age', 'location', 'studies_included')
     raw_id_fields = ("location", "studies")
     inlines = [LanguageAdmin]
     autocomplete_lookup_fields = {
@@ -38,6 +39,14 @@ class SpeakerAdmin(BaseAdmin):
             instance.speaker = form.instance
             instance.save()
         formset.save_m2m()
+
+    def studies_included(self, obj):
+        studies_titles = []
+        for study in obj.studies.all():
+            studies_titles.append(study.title)
+        return mark_safe("</br>".join(studies_titles))
+    studies_included.short_description = _(u"Studies")
+    studies_included.allow_tags = True
 
 
 class ProductionAdminForm(forms.ModelForm):
@@ -122,3 +131,8 @@ class ProductionAdmin(GuardedModelAdmin):
     def save_model(self, request, obj, form, change):
         obj.user = request.user
         obj.save()
+
+
+class StudyAdmin(BaseAdmin):
+    search_fields = ('title', 'description', 'authors')
+    list_display = ('title', 'description', 'authors')
