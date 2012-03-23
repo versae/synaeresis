@@ -44,8 +44,8 @@ class SearchOptionsForm(forms.Form):
         ("word", _("Word")),
         ("ipa_transcription", _("IPA")),
         ("rfe_transcription", _("RFE")),
-        ("soundex", _("Soundex")),
-        ("metaphone", _("Metaphone")),
+        ("soundex_encoding", _("Soundex")),
+        ("metaphone_encoding", _("Metaphone")),
     )
     where = forms.ChoiceField(label=_("The"), required=False,
                               choices=WHERE_CHOICES)

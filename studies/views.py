@@ -16,6 +16,7 @@ from base.models import GeospatialReference
 from base.utils import json_encode
 from studies.forms import SearchForm, SearchOptionsForm
 from studies.models import Production
+from studies.utils import metaphone, soundex
 
 
 def mapper(request):
@@ -32,10 +33,15 @@ def mapper(request):
             q = search_form.cleaned_data["q"]
             options = search_options_form.cleaned_data
             if q:
-                to_search = options["where"]
+                to_search = options["where"].lower()
                 key = "productions__%s__%s" \
                       % (to_search, options.get("match") or "iexact")
-                params = {key: q}
+                if to_search == "soundex_encoding":
+                    params = {key: soundex(q, language=request.LANGUAGE_CODE)}
+                elif to_search == "metaphone_encoding":
+                    params = {key: metaphone(q, language=request.LANGUAGE_CODE)}
+                else:
+                    params = {key: q}
                 if data["study"]:
                     params.update({
                         "productions__speaker__studies__id": data["study"],
