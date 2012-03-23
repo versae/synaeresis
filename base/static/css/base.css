@@ -35,6 +35,11 @@ h1,h2,h3,h4,h5,h5,h6,h7,.container-fluid {
     font-size: 1.25em;
 }
 
+.navbar .brand {
+    padding: 8px 20px 12px;
+    margin-top: 2px;
+}
+
 input[type="text"],select {
     font-family: 'IM Fell DW Pica', serif;
     font-size: 1.25em;
@@ -51,7 +56,7 @@ input[type="text"] {
     font-family: 'IM Fell DW Pica', serif;
     font-size: 1.25em;
     height: 16px;
-    width: 80%;
+    width: 600px;
     margin-top: 0px;
     margin-bottom: 3px;
 }
@@ -75,7 +80,7 @@ input#search-submit {
 }
 
 .main-search p {
-    width: 1024px;
+    width: 720px;
     height: 20px;
 }
 
@@ -85,20 +90,28 @@ input#search-submit {
     padding: 4px 0px 4px 4px;
     right: 0px;
     margin-right: 0;
-    left: 300px;
-    width: 560px;
+    left: 130px;
+    width: 480px;
 }
 
 .search-options h3 {
     margin-left: 10px;
 }
 
-.nav > li > a.resultLi {
+.navbar-text a.results {
     color: white;
     padding-top: 11px;
     background: url(../img/push-pin.png) no-repeat left 3px;
-    padding-left: 30px;
+    padding-left: 29px;
+    margin-right: 5px;
     display: none;
+}
+
+.navbar-text a.admin {
+    color: white;
+    padding-top: 11px;
+    background: url(../img/admin.png) no-repeat left 8px;
+    padding-left: 25px;
 }
 
 .keyboard {
@@ -128,7 +141,7 @@ dd {
 
 select {
     font-size: 1em;
-    width: 110px;
+    width: 95px;
     margin-bottom: 15px;
     height: 28px;
     background: none;

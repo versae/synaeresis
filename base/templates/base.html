@@ -62,7 +62,7 @@
             {% endblock %}
             <p class="navbar-text pull-right">
               {% block login %}
-                  <a href="{% url login %}">admin</a>
+                  <a href="{% url login %}" class="admin" title="{% trans "Admin" %}" alt="{% trans "Admin" %}">{% trans "Admin" %}</a>
               {% endblock %}
             </p>
           </div><!--/.nav-collapse -->
