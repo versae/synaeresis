@@ -8,6 +8,7 @@ from django.forms import widgets
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
+from guardian.admin import GuardedModelAdmin
 from olwidget.admin import GeoModelAdmin
 from olwidget.widgets import MapDisplay, InfoMap
 
@@ -15,6 +16,15 @@ from base.models import GeospatialReference
 from base.widgets import GoogleImagesSearchInput, OlWidgetGoogleMapsSearch
 
 #GMAP = GoogleMap(key=settings.GOOGLE_MAPS_API_KEY)
+
+class BaseAdmin(GuardedModelAdmin):
+    user_can_access_owned_objects_only = True
+    exclude = ('user', )
+    save_on_top = True
+
+    def save_model(self, request, obj, form, change):
+        obj.user = request.user
+        obj.save()
 
 
 class GeospatialReferenceAdminForm(forms.ModelForm):
@@ -43,7 +53,7 @@ class GeospatialReferenceAdminForm(forms.ModelForm):
         return geometry
 
 
-class GeospatialReferenceAdmin(GeoModelAdmin):
+class GeospatialReferenceAdmin(BaseAdmin, GeoModelAdmin):
 
     class Media:
         js = (

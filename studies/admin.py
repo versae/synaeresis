@@ -4,17 +4,8 @@ from django.contrib import admin
 
 from guardian.admin import GuardedModelAdmin
 
+from base.admin import BaseAdmin
 from studies.models import Production, Language
-
-
-class BaseAdmin(GuardedModelAdmin):
-    user_can_access_owned_objects_only = True
-    exclude = ('user', )
-    save_on_top = True
-
-    def save_model(self, request, obj, form, change):
-        obj.user = request.user
-        obj.save()
 
 
 class StudyAdmin(BaseAdmin):

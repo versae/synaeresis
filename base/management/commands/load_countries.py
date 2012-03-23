@@ -1,9 +1,12 @@
 import os
-from django.contrib.gis.utils import LayerMapping
-from base.models import WorldBorder, GeospatialReference
-from django.contrib.gis.geos import Point
-from django.core.management.base import BaseCommand, CommandError
 
+from django.core.management.base import BaseCommand, CommandError
+from django.contrib.auth.models import User
+from django.contrib.gis.geos import Point
+from django.contrib.gis.utils import LayerMapping
+from django.db import transaction
+
+from base.models import WorldBorder, GeospatialReference
 
 
 class Command(BaseCommand):
@@ -23,18 +26,20 @@ class Command(BaseCommand):
             'lat' : 'LAT',
             'mpoly' : 'MULTIPOLYGON',
         }
-
-        world_shp = os.path.abspath(os.path.join(os.path.dirname(__file__), '_data/TM_WORLD_BORDERS-0.3.shp'))
-
-
-        lm = LayerMapping(WorldBorder, world_shp, world_mapping,
-                          transform=False, encoding='iso-8859-1')
-
-        lm.save(strict=True, verbose=True)
-
-        for country in WorldBorder.objects.all():
-            gr = GeospatialReference(title=country.name, address=country.name,
-                geometry=country.mpoly, point=Point(country.lon, country.lat),
-                description='http://thematicmapping.org/')
-            gr.save()
-            print gr;
+        user = User.objects.get(id=1)
+        world_shp = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                    'data', 'TM_WORLD_BORDERS-0.3.shp'))
+        with transaction.commit_on_success():
+            lm = LayerMapping(WorldBorder, world_shp, world_mapping,
+                              transform=False, encoding='iso-8859-1')
+            lm.save(strict=True, verbose=True)
+            for country in WorldBorder.objects.all():
+                gr = GeospatialReference(
+                    title=country.name,
+                    address=country.name,
+                    geometry=country.mpoly,
+                    point=Point(country.lon, country.lat),
+                    description='http://thematicmapping.org/',
+                    user=user,
+                )
+                gr.save()

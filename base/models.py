@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
 from django.contrib.gis.db import models
 from django.utils.translation import gettext as _
 
@@ -16,6 +17,8 @@ class MediaReference(models.Model):
                                            "Time format: HH:MM:SS "
                                            "Pixels format: x1,y1;x2,y2."),
                                blank=True, null=True)
+    user = models.ForeignKey(User, verbose_name=_("user"),
+                             related_name="media")
     notes = models.TextField(_(u'Notes'), blank=True, null=True)
 
     def __unicode__(self):
@@ -29,6 +32,8 @@ class BibliographicReference(models.Model):
                           null=True)
     isbn = models.CharField(_(u'ISBN'), max_length=60, blank=True,
                             null=True)
+    user = models.ForeignKey(User, verbose_name=_("user"),
+                             related_name="bibliography")
     notes = models.TextField(_(u'Notes'), blank=True, null=True)
 
     def __unicode__(self):
@@ -43,7 +48,8 @@ class GeospatialReference(models.Model):
     point = models.PointField(_('Point'), blank=True, null=True)
     description = models.TextField(_('Description'), blank=True, null=True)
     date = models.DateTimeField(_('Date'), auto_now=True)
-
+    user = models.ForeignKey(User, verbose_name=_("user"),
+                             related_name="locations")
     objects = models.GeoManager()
 
     def __unicode__(self):
@@ -69,6 +75,7 @@ class GeospatialReference(models.Model):
     def autocomplete_search_fields():
         return ("id__iexact", "title__icontains",)
 
+
 class WorldBorder(models.Model):
     # Regular Django fields corresponding to the attributes in the
     # world borders shapefile.
@@ -83,7 +90,6 @@ class WorldBorder(models.Model):
     subregion = models.IntegerField('Sub-Region Code')
     lon = models.FloatField()
     lat = models.FloatField()
-
     # GeoDjango-specific: a geometry field (MultiPolygonField), and
     # overriding the default manager with a GeoManager instance.
     mpoly = models.MultiPolygonField()
