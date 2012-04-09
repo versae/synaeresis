@@ -27,7 +27,7 @@ class BaseAdmin(GuardedModelAdmin):
         obj.save()
 
 
-class GeospatialReferenceAdminForm(BaseAdmin):
+class GeospatialReferenceAdminForm(forms.ModelForm):
 
     class Meta:
         model = GeospatialReference
@@ -129,3 +129,10 @@ class GeospatialReferenceAdmin(BaseAdmin, GeoModelAdmin):
         return mark_safe(map_display.render(obj.title, {}))
     ubication_map.short_description = _(u"Ubication")
     ubication_map.allow_tags = True
+
+
+class MediaReferenceAdmin(BaseAdmin):
+    verbose_name = _(u"Media")
+    ordering = ('title', )
+    search_fields = ('title', 'url')
+    list_display = ('title', 'file', 'excerpt', 'url')

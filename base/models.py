@@ -24,6 +24,10 @@ class MediaReference(models.Model):
     def __unicode__(self):
         return u"%s (%s)" % (self.title, self.url or self.image.url)
 
+    @staticmethod
+    def autocomplete_search_fields():
+        return ("id__iexact", "title__icontains", )
+
 
 class BibliographicReference(models.Model):
     title = models.TextField(_(u'Title'))
@@ -73,7 +77,7 @@ class GeospatialReference(models.Model):
 
     @staticmethod
     def autocomplete_search_fields():
-        return ("id__iexact", "title__icontains",)
+        return ("id__iexact", "title__icontains", )
 
 
 class WorldBorder(models.Model):
