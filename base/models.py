@@ -22,7 +22,12 @@ class MediaReference(models.Model):
     notes = models.TextField(_(u'Notes'), blank=True, null=True)
 
     def __unicode__(self):
-        return u"%s (%s)" % (self.title, self.url or self.image.url)
+        if self.file:
+            return u"%s (%s)" % (self.title, self.file.name)
+        elif self.url:
+            return u"%s (%s)" % (self.title, self.url)
+        else:
+            return u"%s (%s)" % (self.title, self.url or self.image.url)
 
     @staticmethod
     def autocomplete_search_fields():
