@@ -27,7 +27,7 @@ class BaseAdmin(GuardedModelAdmin):
         obj.save()
 
 
-class GeospatialReferenceAdminForm(forms.ModelForm):
+class GeospatialReferenceAdminForm(BaseAdmin):
 
     class Meta:
         model = GeospatialReference
