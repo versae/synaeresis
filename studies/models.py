@@ -135,7 +135,7 @@ class Language(models.Model):
         ordering = ["type"]
 
     def __unicode__(self):
-        return u"%s: %s" % (self.sepaker.code, self.type)
+        return u"%s: %s" % (self.speaker.code, self.type)
 
 
 class Production(models.Model):
