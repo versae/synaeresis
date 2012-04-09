@@ -61,7 +61,7 @@ class ProductionAdminForm(forms.ModelForm):
        }
 
 
-class ProductionAdmin(GuardedModelAdmin):
+class ProductionAdmin(BaseAdmin):
 
     class Media:
         js = ("admin/js/categories.js", 
