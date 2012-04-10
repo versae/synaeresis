@@ -18,7 +18,10 @@ def metaphone(text, language="en"):
 
 def soundex(text, language="en"):
     soundex = fuzzy.Soundex(10)
-    return soundex(text)
+    try:
+        return soundex(text)
+    except UnicodeEncodeError:
+        return soundex(text.encode("utf8"))
 
 
 def transcript(text, language="en", alphabet="ipa"):
