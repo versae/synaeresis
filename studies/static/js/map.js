@@ -62,7 +62,7 @@ function main() {
             var recentSearches = [];
             $("#searchForm").submit(function(e) {
                 var key, values = decodeURIComponent(form.serialize());
-                var data = {
+                var params = {
                     q: $("#id_q").val().trim(),
                     match: $("#id_match").val().trim(),
                     where: $("#id_where").val().trim(),
@@ -73,7 +73,7 @@ function main() {
                     var output = "";
                     output += $("label[for='id_"+ item +"']").text();
                     output += " ";
-                    output += $("#id_"+ item).find("option[value='"+ data[item] +"']").text();
+                    output += $("#id_"+ item).find("option[value='"+ params[item] +"']").text();
                     return output;
                 }
                 var text = label("match") +" "+  label("where") +" "+ label("study");
@@ -85,7 +85,7 @@ function main() {
                 spanText.text(text);
                 spanText.addClass("resultText");
                 var spanQ = $("<SPAN>");
-                spanQ.text(data.q);
+                spanQ.text(params.q);
                 spanQ.addClass("resultQuery");
                 var spanResults = $("<SPAN>");
                 spanResults.text("Loading...");
@@ -101,8 +101,8 @@ function main() {
                 anchor.append(spanResults);
                 anchor.append(spanText);
                 resultsCount += 1;
-                key = data.q + data.match + data.where + data.study;
-                if ((data.q != "") && (recentSearches.indexOf(key) < 0)) {
+                key = params.q + params.match + params.where + params.study;
+                if ((params.q != "") && (recentSearches.indexOf(key) < 0)) {
                     recentSearches.push(key);
                     $(".well").prepend(anchor);
                     $.ajax({
@@ -110,7 +110,7 @@ function main() {
                         dataType: "json",
                         processData: true,
                         type: "GET",
-                        data: data,
+                        data: params,
                         success: function(data, textStatus, jqXHR) {
                             $("#results-"+ data.id).click(function() {
                                 var self = $(this);
@@ -132,10 +132,11 @@ function main() {
                                 if (!polygonSet[data.id]) {
                                     polygonSet[data.id] = [];
                                 }
+                                var polygons = getGeometryFromWKT(data.centroid, data.boundaries, params.q, colors[data.id]);
+                                polygonSet[data.id] = polygonSet[data.id].concat(polygons);
                                 for(i=0; i<data.places.length; i++) {
                                     var place = data.places[i];
-                                    var polygons = getGeometryFromWKT(place.point, place.geometry, place.title, colors[data.id]);
-                                    console.log(data.id)
+                                    var polygons = getGeometryFromWKT(place.point, place.geometry, place.title, colors[data.id], true);
                                     polygonSet[data.id] = polygonSet[data.id].concat(polygons);
                                 }
                             } else {
@@ -152,7 +153,7 @@ function main() {
                 return false;
             });
 
-            function getGeometryFromWKT(wkt_point, wkt_geometry, title, color) {
+            function getGeometryFromWKT(wkt_point, wkt_geometry, title, color, isSubPolygon) {
                 multipolygonRegExp = /^MULTIPOLYGON\s*\(\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\)(,\s*\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\))*\)$/;
                 multipolygonMatch = wkt_geometry.match(multipolygonRegExp);
                 polygonRegExp = /^POLYGON\s*\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\)$/;
@@ -175,57 +176,38 @@ function main() {
                             var point = new google.maps.LatLng(wktPoint[1], wktPoint[0]);
                             points.push(point);
                         }
-                        var polygonsObject = new google.maps.Polygon({
-                            paths: points,
-                            strokeColor: color,
-                            strokeOpacity: 0.8,
-                            strokeWeight: 2,
-                            fillColor: color,
-                            fillOpacity: 0.25
-                        });
-                        polygonsObjects[polygonsObjects.length] = polygonsObject
+                        var polygonsOptions, polygonsObject;
+                        if (isSubPolygon) {
+                            polygonsOptions = {
+                                paths: points,
+                                strokeColor: color,
+                                strokeOpacity: 0,
+                                strokeWeight: 3,
+                                fillColor: color,
+                                fillOpacity: 0
+                            }
+                            polygonsObject = new google.maps.Polygon(polygonsOptions);
+                            google.maps.event.addListener(polygonsObject, 'mouseover', function() {
+                                this.setOptions({strokeOpacity: 0.8});
+                            });
+                            google.maps.event.addListener(polygonsObject, 'mouseout', function() {
+                                this.setOptions({strokeOpacity: 0});
+                            });
+                        } else {
+                            polygonsOptions = {
+                                paths: points,
+                                strokeColor: color,
+                                strokeOpacity: 0.8,
+                                strokeWeight: 2,
+                                fillColor: color,
+                                fillOpacity: 0.25
+                            }
+                            polygonsObject = new google.maps.Polygon(polygonsOptions);
+                        }
+                        polygonsObjects[polygonsObjects.length] = polygonsObject;
                     }
                 }
                 return polygonsObjects;
-                if (pointMatch) {
-                    var wktPoint = pointMatch[1].split(" ");
-                    var point = new google.maps.LatLng(wktPoint[1], wktPoint[0]);
-                    var marker, markerOptions;
-                    if (multipolygonMatch || polygonMatch) {
-                        markerOptions = {
-            //                icon: markerWorld,
-                            title: title,
-                            position: point,
-                            map: map
-                        }
-                        marker = new google.maps.Marker(markerOptions);
-                        google.maps.event.addListener(marker, "mouseover", function(e) {
-                            var parentMarker = this;
-                            for(var ig=0; ig<polygonsObjects.length; ig++) {
-                                var polygon = polygonsObjects[ig];
-                                polygon.setMap(map);
-                                // map.addOverlay(polygon);
-                            }
-                        });
-                        google.maps.event.addListener(marker, "mouseout", function(e) {
-                            var parentMarker = this;
-                            for(var ig=0; ig<polygonsObjects.length; ig++) {
-                                var polygon = polygonsObjects[ig];
-                                polygon.setMap(null);
-                                //map.removeOverlay(polygon);
-                            }
-                        });
-                    } else {
-                        markerOptions = {
-            //                icon: markerArtwork,
-                            title: title,
-                            position: point,
-                            map: map
-                        }
-                        marker = new google.maps.Marker(markerOptions);
-                    }
-                    return marker;
-                }
             }
 
             $("#toggleResults").click(function(e) {

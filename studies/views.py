@@ -22,7 +22,14 @@ from studies.utils import metaphone, soundex
 def mapper(request):
     data = request.GET.copy()
     search_form = SearchForm(label_suffix="", data=data)
-    search_options_form = SearchOptionsForm(data=data)
+    if not data:
+        initial = {
+            "match": "icontains",
+            "where": "ipa_transcription",
+        }
+        search_options_form = SearchOptionsForm(initial=initial)
+    else:
+        search_options_form = SearchOptionsForm(data=data)
     q = None
     entries = []
     query_time = 0.0
@@ -51,6 +58,7 @@ def mapper(request):
                     num_productions=Count('productions')
                 )
                 total_productions = 0
+                boundaries = None
                 for e in annotated_entries:
                     entry = {}
                     entry["point"] = e.point.wkt
@@ -60,9 +68,15 @@ def mapper(request):
                     entry["num_productions"] = e.num_productions
                     entries.append(entry)
                     total_productions += e.num_productions
+                    if not boundaries:
+                        boundaries = e.geometry
+                    else:
+                        boundaries = boundaries.union(e.geometry)
                 result = {
                     "id": data["id"],
                     "total": total_productions,
+                    "boundaries": boundaries.wkt,
+                    "centroid": boundaries.centroid.wkt,
                 }
                 if entries:
                     result.update({
