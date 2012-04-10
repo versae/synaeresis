@@ -77,15 +77,14 @@ class ProductionAdmin(BaseAdmin):
     readonly_fields = ('frequency', )
     exclude = ('user', 'frequency')
     search_fields = ('word', 'lemma', 'user__username',
-                     'definition')
-    list_display = ('word', 'language',
+                     'definition', 'notes')
+    list_display = ('word', 'language', 'notes',
                     'ipa_transcription', 'rfe_transcription',
                     'metaphone_encoding', 'soundex_encoding',
                     'speaker', 'location',
                     'lemma', 'category', 'features',
                     'date')
     lexical_fields = set()
-
     for categories in Production.CATEGORY_FIELDS.values():
         for value in categories:
             lexical_fields.add(value)
@@ -96,7 +95,7 @@ class ProductionAdmin(BaseAdmin):
     }
     fieldsets = (
         (None, {
-            'fields': ('word', 'language')
+            'fields': ('word', 'language', 'notes')
         }),
         ('Transcriptions', {
             'fields': ('ipa_transcription', 'rfe_transcription',
@@ -119,7 +118,8 @@ class ProductionAdmin(BaseAdmin):
         }),
     )
     list_filter = ('date', 'category', 'ipa_transcription', 'rfe_transcription',
-                   'metaphone_encoding', 'soundex_encoding', 'language')
+                   'metaphone_encoding', 'soundex_encoding', 'language',
+                   'notes')
     date_hierarchy = 'date'
     # list_editable = ('lemma', 'category', 'gender', 'number', 'person')
     save_as = True
