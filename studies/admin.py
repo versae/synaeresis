@@ -57,7 +57,8 @@ class ProductionAdminForm(forms.ModelForm):
            'ipa_transcription': forms.TextInput(attrs={'class':
                                                        'vTextField ipakey'}),
            'rfe_transcription': forms.TextInput(attrs={'class':
-                                                       'vTextField ipakey'})
+                                                       'vTextField ipakey'}),
+           'notes': forms.TextInput(attrs={'class': 'vTextField'}),
        }
 
 
@@ -119,7 +120,7 @@ class ProductionAdmin(BaseAdmin):
     )
     list_filter = ('date', 'category', 'ipa_transcription', 'rfe_transcription',
                    'metaphone_encoding', 'soundex_encoding', 'language',
-                   'notes')
+                   'speaker', 'notes')
     date_hierarchy = 'date'
     # list_editable = ('lemma', 'category', 'gender', 'number', 'person')
     save_as = True
