@@ -36,21 +36,27 @@ class MediaReference(models.Model):
             id_attr = u" id=\"%s\"" % id
         else:
             id_attr = u" id=\"%s\"" % self.id
-        output = u"<a%s href='%s'>%s</a>" \
-                 % (id_attr, self.file.url, self.file.name)
-        get_mimetype = Magic(mime=True)
-        mimetype = get_mimetype.from_file(self.file.path)
-        if mimetype:
-            main_type = mimetype.split("/")[0]
-            if main_type == "audio":
-                output = u"<audio%s src='%s' preload='none' type='%s'></audio>" \
-                         % (id_attr, self.file.url, mimetype)
-            elif main_type == "video":
-                output = u"<video%s src='%s' preload='none' type='%s'></video>" \
-                         % (id_attr, self.file.url, mimetype)
-            elif main_type == "image":
-                output = u"<img%s src='%s'/>" \
-                         % (id_attr, self.file.url, self.file.name)
+        if self.file:
+            output = u"<a%s href='%s'>%s</a>" \
+                     % (id_attr, self.file.url, self.file.name)
+            get_mimetype = Magic(mime=True)
+            mimetype = get_mimetype.from_file(self.file.path)
+            if mimetype:
+                main_type = mimetype.split("/")[0]
+                if main_type == "audio":
+                    output = u"<audio%s src='%s' preload='none' type='%s'></audio>" \
+                             % (id_attr, self.file.url, mimetype)
+                elif main_type == "video":
+                    output = u"<video%s src='%s' preload='none' type='%s'></video>" \
+                             % (id_attr, self.file.url, mimetype)
+                elif main_type == "image":
+                    output = u"<img%s src='%s'/>" \
+                             % (id_attr, self.file.url, self.file.name)
+        elif self.url:
+            output = u"<a%s href='%s'>%s</a>" \
+                     % (id_attr, self.url, self.title)
+        else:
+            output = u"%s" % self.title
         return output
 
     @staticmethod

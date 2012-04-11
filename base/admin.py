@@ -155,7 +155,7 @@ class MediaReferenceAdmin(BaseAdmin):
         (function($) {
             $(document).ready(function() {
                 $('#%s').mediaelementplayer({
-                    audioWidth: 150,
+                    audioWidth: 175,
                     loop: false,
                     features: ['playpause','duration','volume']
                 });

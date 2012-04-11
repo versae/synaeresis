@@ -65,24 +65,33 @@ class ProductionAdminForm(forms.ModelForm):
 class ProductionAdmin(BaseAdmin):
 
     class Media:
-        js = ("admin/js/categories.js", 
-              "js/n11n.js",
-              "js/functions11.js",
-              "js/n11ndata-lite.js",
-              "js/ipa.js"
-              )
+        js = (
+            "admin/js/categories.js", 
+            "js/n11n.js",
+            "js/functions11.js",
+            "js/n11ndata-lite.js",
+            "js/ipa.js",
+            "mediaelement/jquery.js",
+            "mediaelement/mediaelement-and-player.js",
+        )
         css = {
-                'all': ('css/style11.css','css/ipa.css'),
-              }
+            'all': (
+                'css/style11.css',
+                'css/ipa.css',
+                'mediaelement/mediaelementplayer.css',
+            ),
+        }
+
     form = ProductionAdminForm
     readonly_fields = ('frequency', )
     exclude = ('user', 'frequency')
     search_fields = ('word', 'lemma', 'user__username',
                      'definition', 'notes')
-    list_display = ('word', 'language', 'notes',
-                    'ipa_transcription', 'rfe_transcription',
+    list_display = ('word',
+                    'ipa_transcription', 'rfe_transcription', 'player',
+                    'speaker', 'language', 'notes',
+                    'location',
                     'metaphone_encoding', 'soundex_encoding',
-                    'speaker', 'location',
                     'lemma', 'category', 'features',
                     'date')
     lexical_fields = set()
@@ -124,6 +133,31 @@ class ProductionAdmin(BaseAdmin):
     date_hierarchy = 'date'
     # list_editable = ('lemma', 'category', 'gender', 'number', 'person')
     save_as = True
+
+    def player(self, obj):
+        if obj.media:
+            media = obj.media
+            player_id = u"_media_%s" % media.id
+            output = media.get_player(player_id)
+            output = """%s
+            <script>
+            (function($) {
+                $(document).ready(function() {
+                    $('#%s').mediaelementplayer({
+                        audioWidth: 25,
+                        audioHeight: 25,
+                        loop: false,
+                        features: ['playpause']
+                    });
+                });
+            })(mejs.$);
+            </script>
+            """ % (output, player_id)
+            return mark_safe(output)
+        else:
+            return mark_safe(u"")
+    player.short_description = _(u"Player")
+    player.allow_tags = True
 
     def features(self, obj, *args, **kwargs):
         return obj.get_features_display()
