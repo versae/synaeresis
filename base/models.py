@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from magic import Magic
+
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models
 from django.utils.translation import gettext as _
@@ -28,6 +30,28 @@ class MediaReference(models.Model):
             return u"%s (%s)" % (self.title, self.url)
         else:
             return u"%s (%s)" % (self.title, self.url or self.image.url)
+
+    def get_player(self, id=None):
+        if id:
+            id_attr = u" id=\"%s\"" % id
+        else:
+            id_attr = u" id=\"%s\"" % self.id
+        output = u"<a%s href='%s'>%s</a>" \
+                 % (id_attr, self.file.url, self.file.name)
+        get_mimetype = Magic(mime=True)
+        mimetype = get_mimetype.from_file(self.file.path)
+        if mimetype:
+            main_type = mimetype.split("/")[0]
+            if main_type == "audio":
+                output = u"<audio%s src='%s' preload='none' type='%s'></audio>" \
+                         % (id_attr, self.file.url, mimetype)
+            elif main_type == "video":
+                output = u"<video%s src='%s' preload='none' type='%s'></video>" \
+                         % (id_attr, self.file.url, mimetype)
+            elif main_type == "image":
+                output = u"<img%s src='%s'/>" \
+                         % (id_attr, self.file.url, self.file.name)
+        return output
 
     @staticmethod
     def autocomplete_search_fields():

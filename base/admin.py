@@ -132,7 +132,37 @@ class GeospatialReferenceAdmin(BaseAdmin, GeoModelAdmin):
 
 
 class MediaReferenceAdmin(BaseAdmin):
+
+    class Media:
+        js = (
+            "mediaelement/jquery.js",
+            "mediaelement/mediaelement-and-player.js",
+        )
+        css = {
+            'all': ('mediaelement/mediaelementplayer.css', ),
+        }
+
     verbose_name = _(u"Media")
     ordering = ('title', )
     search_fields = ('title', 'url')
-    list_display = ('title', 'file', 'excerpt', 'url')
+    list_display = ('title', 'file', 'excerpt', 'url', 'player')
+
+    def player(self, obj):
+        player_id = u"_media_%s" % obj.id
+        output = obj.get_player(player_id)
+        output = """%s
+        <script>
+        (function($) {
+            $(document).ready(function() {
+                $('#%s').mediaelementplayer({
+                    audioWidth: 150,
+                    loop: false,
+                    features: ['playpause','duration','volume']
+                });
+            });
+        })(mejs.$);
+        </script>
+        """ % (output, player_id)
+        return mark_safe(output)
+    player.short_description = _(u"Player")
+    player.allow_tags = True
