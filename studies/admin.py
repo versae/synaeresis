@@ -137,7 +137,7 @@ class ProductionAdmin(BaseAdmin):
     def player(self, obj):
         if obj.media:
             media = obj.media
-            player_id = u"_media_%s" % media.id
+            player_id = u"_media_%s_%s" % (obj.id, media.id)
             output = media.get_player(player_id)
             output = """%s
             <script>
