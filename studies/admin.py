@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 from guardian.admin import GuardedModelAdmin
 
 from base.admin import BaseAdmin
+from base.widgets import MediaPlayerWidget
 from studies.models import Production, Language
 
 
@@ -50,6 +51,14 @@ class SpeakerAdmin(BaseAdmin):
 
 
 class ProductionAdminForm(forms.ModelForm):
+    player = forms.CharField(label=_("Player"), required=False,
+                             widget=forms.HiddenInput)
+
+    def __init__(self, *args, **kwargs):
+        super(ProductionAdminForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.media:
+            widget = MediaPlayerWidget(obj=self.instance.media)
+            self.fields["player"].widget = widget
 
     class Meta:
         model = Production
@@ -112,7 +121,7 @@ class ProductionAdmin(BaseAdmin):
                        'approximate_word')
         }),
         ('Source', {
-            'fields': ('speaker', 'location', 'media', )
+            'fields': ('speaker', 'location', 'media', 'player')
 #                       'nysiis_encoding',
 #                       'codex_encoding')
         }),

@@ -105,3 +105,42 @@ class OlWidgetGoogleMapsSearch(widgets.TextInput):
         if self.olwidget_maps:
             attrs.update({'olwidget_maps': self.olwidget_maps})
         return super(OlWidgetGoogleMapsSearch, self).render(name, value, attrs)
+
+
+class MediaPlayerWidget(widgets.HiddenInput):
+
+    class Media:
+        js = (
+            "mediaelement/jquery.js",
+            "mediaelement/mediaelement-and-player.js",
+        )
+        css = {
+            'all': ('mediaelement/mediaelementplayer.css', ),
+        }
+
+    def get_player(self):
+        player_id = u"_media_%s" % self.obj.id
+        output = self.obj.get_player(player_id)
+        output = """
+        %s
+        <script>
+        (function($) {
+            $(document).ready(function() {
+                $('#%s').mediaelementplayer({
+                    loop: false,
+                    features: ['playpause','progress','current','duration','volume']
+                });
+            });
+        })(mejs.$);
+        </script>
+        """ % (output, player_id)
+        return mark_safe(output)
+
+    def __init__(self, obj, *args, **kwargs):
+        self.obj = obj
+        super(MediaPlayerWidget, self).__init__(*args, **kwargs)
+
+    def render(self, name, value=None, attrs=None):
+        player = self.get_player()
+        output = super(MediaPlayerWidget, self).render(name, value, attrs)
+        return mark_safe(u"%s%s" % (output, player))
