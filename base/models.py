@@ -8,7 +8,7 @@ from django.utils.translation import gettext as _
 
 class MediaReference(models.Model):
     title = models.CharField(_(u'Title'), max_length=200)
-    file = models.FileField(_(u'File'), upload_to='images',
+    file = models.FileField(_(u'File'), upload_to='files',
                             blank=True, null=True)
     url = models.URLField(_(u'URL'), verify_exists=False,
                           blank=True, null=True)
