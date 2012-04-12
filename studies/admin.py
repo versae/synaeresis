@@ -99,7 +99,7 @@ class ProductionAdmin(BaseAdmin):
     list_display = ('word',
                     'ipa_transcription', 'rfe_transcription', 'player',
                     'speaker', 'language', 'notes',
-                    'location',
+                    'study', 'location',
                     'metaphone_encoding', 'soundex_encoding',
                     'lemma', 'category', 'features',
                     'date')
@@ -138,7 +138,7 @@ class ProductionAdmin(BaseAdmin):
     )
     list_filter = ('date', 'category', 'ipa_transcription', 'rfe_transcription',
                    'metaphone_encoding', 'soundex_encoding', 'language',
-                   'speaker', 'notes')
+                   'speaker', 'notes', 'speaker__studies__title')
     date_hierarchy = 'date'
     # list_editable = ('lemma', 'category', 'gender', 'number', 'person')
     save_as = True
@@ -167,6 +167,13 @@ class ProductionAdmin(BaseAdmin):
             return mark_safe(u"")
     player.short_description = _(u"Player")
     player.allow_tags = True
+
+    def study(self, obj):
+        studies_all = obj.speaker.studies.all()
+        studies = [t["title"] for t in studies_all.values("title")]
+        return mark_safe(u", ".join(studies))
+    study.short_description = _(u"Study")
+    study.admin_order_field = "speaker__studies__title"
 
     def features(self, obj, *args, **kwargs):
         return obj.get_features_display()
