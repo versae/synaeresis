@@ -53,7 +53,8 @@ def mapper(request):
                     params.update({
                         "productions__speaker__studies__id": data["study"],
                     })
-                references = GeospatialReference.objects.filter(**params)
+                references = GeospatialReference.objects.filter(**params).exclude(pk__in = [161,211])
+                #references = GeospatialReference.objects.filter(**params)
                 annotated_entries = references.distinct().annotate(
                     num_productions=Count('productions')
                 )

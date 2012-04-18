@@ -43,3 +43,4 @@ class Command(BaseCommand):
                     user=user,
                 )
                 gr.save()
+
