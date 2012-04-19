@@ -4,6 +4,7 @@ google.load('maps', '3.x', {"other_params": "sensor=false"});
 function loadLibraries() {
     var libs = [
         "/static/js/markerclusterer.js",
+        "/static/js/jquery.haschange.min.js"
         // "/media/js/TimeControl.js",
     ];
     var libsLength = libs.length;
@@ -22,12 +23,35 @@ function loadLibraries() {
 function main() {
     (function ($) {
         $(document).ready(initialize);
-
         function initialize() {
-            var directionsDisplay;
             var map;
-            var oldDirections = [];
-            var currentDirections = null;
+            var searches = [];
+            var polygonSet = {};
+            var recentSearches = [];
+            var resultsCount = 1;
+            $(window).hashchange(hashchange);
+            $(window).hashchange();
+
+            function hashchange() {
+                var hash, paramsList, length;
+                hash = location.hash.substring(1);
+                if (hash) {
+                    if (map) {
+                        // map.clear();
+                    }
+                    searches = [];
+                    polygonSet = {};
+                    recentSearches = [];
+                    $("#searchs").html("");
+                    paramsList = JSON.parse(hash);
+                    length = paramsList.length;
+                    for(i=0; i < length; i++) {
+                        addSearch(paramsList[i]);
+                    }
+                    location.hash = "";
+                }
+            };
+
             var mapOptions = {
               zoom: 3,
               center: new google.maps.LatLng(30.751873645557307, -40.417622248316455),
@@ -57,11 +81,8 @@ function main() {
             }
             map = new google.maps.Map(document.getElementById("map"), mapOptions);
             var form = $("#searchForm");
-            var resultsCount = 1;
-            var polygonSet = {};
-            var recentSearches = [];
             $("#searchForm").submit(function(e) {
-                var key, values = decodeURIComponent(form.serialize());
+                // var key, values = decodeURIComponent(form.serialize());
                 var params = {
                     q: $("#id_q").val().trim(),
                     match: $("#id_match").val().trim(),
@@ -69,6 +90,11 @@ function main() {
                     study: $("#id_study").val().trim(),
                     id: resultsCount
                 };
+                addSearch(params);
+                return false;
+            });
+
+            function addSearch(params) {
                 label = function(item) {
                     var output = "";
                     output += $("label[for='id_"+ item +"']").text();
@@ -104,7 +130,9 @@ function main() {
                 key = params.q + params.match + params.where + params.study;
                 if ((params.q != "") && (recentSearches.indexOf(key) < 0)) {
                     recentSearches.push(key);
-                    $(".well").prepend(anchor);
+                    searches.push(params)
+                    $("#link").val(location.origin + location.pathname +"#"+ JSON.stringify(searches));
+                    $("#searchs").prepend(anchor);
                     $.ajax({
                         url: "/map/",
                         dataType: "json",
@@ -150,8 +178,7 @@ function main() {
                         }
                     });
                 }
-                return false;
-            });
+            };
 
             function getGeometryFromWKT(wkt_point, wkt_geometry, title, color, isSubPolygon) {
                 multipolygonRegExp = /^MULTIPOLYGON\s*\(\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\)(,\s*\(\((([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?,\s*)+([+-]?\d+(\.\d+)? [+-]?\d+(\.\d+)?){1})\)\))*\)$/;

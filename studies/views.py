@@ -75,8 +75,8 @@ def mapper(request):
                 result = {
                     "id": data["id"],
                     "total": total_productions,
-                    "boundaries": boundaries.wkt,
-                    "centroid": boundaries.centroid.wkt,
+                    "boundaries": boundaries and boundaries.wkt,
+                    "centroid": boundaries and boundaries.centroid.wkt,
                 }
                 if entries:
                     result.update({

@@ -182,9 +182,23 @@ label {
     right: 0;
     position: absolute;
     top: 38px;
-    max-height: 400px;
     display: none;
+    padding-bottom: 5px;
+}
+
+#searchs {
+    max-height: 400px;
     overflow: auto;
+}
+
+.permalink {
+    padding-top: 5px;
+    display: block;
+    font-size: 0.8em;
+}
+
+#link {
+    width: 220px;
 }
 
 .resultSquare {
