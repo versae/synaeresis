@@ -61,8 +61,8 @@ def mapper(request):
                 boundaries = None
                 for e in annotated_entries:
                     entry = {}
-                    entry["point"] = e.point.wkt
-                    entry["geometry"] = e.geometry.wkt
+                    entry["point"] = e.point and e.point.wkt
+                    entry["geometry"] = e.geometry and e.geometry.wkt
                     entry["address"] = e.address
                     entry["title"] = e.title
                     entry["num_productions"] = e.num_productions
