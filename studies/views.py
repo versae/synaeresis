@@ -52,6 +52,7 @@ def mapper(request):
                 if data["study"]:
                     params.update({
                         "productions__speaker__studies__id": data["study"],
+                        "geometry__isnull": False,
                     })
                 references = GeospatialReference.objects.filter(**params)
                 annotated_entries = references.distinct().annotate(
@@ -60,18 +61,19 @@ def mapper(request):
                 total_productions = 0
                 boundaries = None
                 for e in annotated_entries:
-                    entry = {}
-                    entry["point"] = e.point and e.point.wkt
-                    entry["geometry"] = e.geometry and e.geometry.wkt
-                    entry["address"] = e.address
-                    entry["title"] = e.title
-                    entry["num_productions"] = e.num_productions
-                    entries.append(entry)
-                    total_productions += e.num_productions
-                    if not boundaries:
-                        boundaries = e.geometry
-                    else:
-                        boundaries = boundaries.union(e.geometry)
+                    if e.geometry:
+                        entry = {}
+                        entry["point"] = e.point and e.point.wkt
+                        entry["geometry"] = e.geometry and e.geometry.wkt
+                        entry["address"] = e.address
+                        entry["title"] = e.title
+                        entry["num_productions"] = e.num_productions
+                        entries.append(entry)
+                        total_productions += e.num_productions
+                        if not boundaries:
+                            boundaries = e.geometry
+                        else:
+                            boundaries = boundaries.union(e.geometry)
                 result = {
                     "id": data["id"],
                     "total": total_productions,
