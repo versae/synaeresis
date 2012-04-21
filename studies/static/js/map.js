@@ -144,12 +144,16 @@ function main() {
                                 var self = $(this);
                                 if (self.hasClass("resultDisabled")) {
                                     for(i=0; i<polygonSet[data.id].length; i++) {
-                                        polygonSet[data.id][i].setMap(map);
+                                        if (polygonSet[data.id][i]) {
+                                            polygonSet[data.id][i].setMap(map);
+                                        }
                                     }
                                     self.removeClass("resultDisabled");
                                 } else {
                                     for(i=0; i<polygonSet[data.id].length; i++) {
-                                        polygonSet[data.id][i].setMap(null);
+                                        if (polygonSet[data.id][i]) {
+                                            polygonSet[data.id][i].setMap(null);
+                                        }
                                     }
                                     self.addClass("resultDisabled");
                                 }
