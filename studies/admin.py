@@ -3,6 +3,7 @@ import collections
 
 from django import forms
 from django.contrib import admin
+from django.contrib.humanize.templatetags import humanize
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -100,7 +101,7 @@ class ProductionAdmin(BaseAdmin):
                      'definition', 'notes')
     list_display = ('word',
                     'ipa_transcription', 'rfe_transcription',
-                    'syllables', 'player',
+                    'syllables', 'stress', 'player',
                     'speaker', 'language', 'notes',
                     'study', 'location',
                     'metaphone_encoding', 'soundex_encoding',
@@ -171,18 +172,38 @@ class ProductionAdmin(BaseAdmin):
     player.short_description = _(u"Player")
     player.allow_tags = True
 
+    def get_chars_count(self, word, char=None):
+        d = collections.defaultdict(int)
+        for c in word:
+            d[c] += 1
+        if char:
+            return d[char]
+        else:
+            return d
+
     def syllables(self, obj):
         syllables_word = obj.ipa_transcription or obj.rfe_transcription
         if syllables_word:
-            d = collections.defaultdict(int)
-            for c in syllables_word:
-                d[c] += 1
-            char = u"."
-            syllables_count = d[char] + 1
+            syllables_count = self.get_chars_count(syllables_word, u".") + 1
         else:
             syllables_count = None
         return syllables_count
     syllables.short_description = _("Syllables")
+
+    def stress(self, obj):
+        stress_word = obj.ipa_transcription or obj.rfe_transcription
+        if stress_word:
+            stress_char = u"ˈ"
+            if stress_char in stress_word:
+                stress_word = stress_word[:stress_word.index(stress_char)]
+                stress_count = self.get_chars_count(stress_word, u".") + 1
+                stress_position = mark_safe(humanize.ordinal(stress_count))
+            else:
+                stress_position = None
+        else:
+            stress_position = None
+        return stress_position
+    stress.short_description = _("Stress")
 
     def study(self, obj):
         studies_all = obj.speaker.studies.all()
