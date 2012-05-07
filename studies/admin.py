@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import collections
+
 from django import forms
 from django.contrib import admin
 from django.utils.safestring import mark_safe
@@ -96,7 +98,7 @@ class ProductionAdmin(BaseAdmin):
     exclude = ('user', 'frequency')
     search_fields = ('word', 'lemma', 'user__username',
                      'definition', 'notes')
-    list_display = ('word',
+    list_display = ('word', 'syllables',
                     'ipa_transcription', 'rfe_transcription', 'player',
                     'speaker', 'language', 'notes',
                     'study', 'location',
@@ -167,6 +169,19 @@ class ProductionAdmin(BaseAdmin):
             return mark_safe(u"")
     player.short_description = _(u"Player")
     player.allow_tags = True
+
+    def syllables(self, obj):
+        syllables_word = obj.ipa_transcription or obj.rfe_transcription
+        if syllables_word:
+            char = u"."
+            d = collections.defaultdict(int)
+            for char in syllables_word:
+                d[char] += 1
+            syllables_count = d[char] + 1
+        else:
+            syllables_count = None
+        return syllables_count
+    syllables.short_description = _("Syllables")
 
     def study(self, obj):
         studies_all = obj.speaker.studies.all()
