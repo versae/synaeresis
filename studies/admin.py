@@ -98,8 +98,9 @@ class ProductionAdmin(BaseAdmin):
     exclude = ('user', 'frequency')
     search_fields = ('word', 'lemma', 'user__username',
                      'definition', 'notes')
-    list_display = ('word', 'syllables',
-                    'ipa_transcription', 'rfe_transcription', 'player',
+    list_display = ('word',
+                    'ipa_transcription', 'rfe_transcription',
+                    'syllables', 'player',
                     'speaker', 'language', 'notes',
                     'study', 'location',
                     'metaphone_encoding', 'soundex_encoding',
@@ -173,10 +174,10 @@ class ProductionAdmin(BaseAdmin):
     def syllables(self, obj):
         syllables_word = obj.ipa_transcription or obj.rfe_transcription
         if syllables_word:
-            char = u"."
             d = collections.defaultdict(int)
-            for char in syllables_word:
-                d[char] += 1
+            for c in syllables_word:
+                d[c] += 1
+            char = u"."
             syllables_count = d[char] + 1
         else:
             syllables_count = None
